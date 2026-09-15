@@ -1,0 +1,35 @@
+{
+  "name": "@ofidj/entry",
+  "version": "3.10.0",
+  "description": "The Fidj entry: sign-in, account recovery, the service agreement and the design system, shared verbatim by Fidj, the generated apps and the console.",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./tokens.css": "./tokens.css",
+    "./fonts.css": "./fonts.css",
+    "./style.css": "./style.css"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc --project tsconfig.json && cp src/*.css dist/ && cp *.md LICENSE dist/ && cp package.json dist/",
+    "test": "npm run build && node --test test/",
+    "bp:style:fix": "prettier --write \"src/**/*.ts\" \"test/**/*.mjs\" --no-error-on-unmatched-pattern"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ofidj/fidj-entry.git"
+  }
+}
