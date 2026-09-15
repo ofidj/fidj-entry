@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.json && cp src/*.css dist/ && cp *.md LICENSE dist/ && cp package.json dist/",
-    "test": "npm run build && node --test test/",
+    "test": "npm run build && node --test test/*.test.mjs",
     "bp:style:fix": "prettier --write \"src/**/*.ts\" \"test/**/*.mjs\" --no-error-on-unmatched-pattern"
   },
   "devDependencies": {
