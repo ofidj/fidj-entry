@@ -40,24 +40,29 @@ export type VerificationState = {
   error?: string;
 };
 
-// Screen two. Creating an account never signs anybody in: the account exists,
-// it has no session, and the link is what finishes the sign-in.
+// The wait, underneath the form that started it.
 //
-// What a person needs here is not reassurance but the two things they will
-// reach for when the mail does not arrive — send it again, and fix the address
-// they mistyped. Both are on the screen rather than behind a support page.
+// Creating an account never signs anybody in: the account exists, it has no
+// session, and the link is what finishes the sign-in. But that is not a place
+// somebody was taken to, so it does not get a screen — it appears below the
+// credentials they just submitted, which stay where they are.
+//
+// That is also what makes a mistyped address recoverable without a control of
+// its own: the address field is still on screen, still filled in, still
+// editable. Correcting it and pressing Create an account again is the repair,
+// and it reads as one because nothing moved.
 export function verificationWait(state: VerificationState) {
   const notice = state.error
     ? `<p role="alert" class="error">${escape(state.error)}</p>`
     : state.resent
       ? `<p class="fineprint">The link was sent again. Only the newest one works.</p>`
       : "";
-  return `<h2>Confirm your email</h2>
-  <p role="status" class="verification-wait"><span class="spinner" aria-hidden="true"></span>Waiting for you to open the link sent to <strong>${escape(state.email)}</strong>.</p>
-  <p class="fineprint">This screen continues on its own once you have. The link may take a minute, and it sometimes lands in spam.</p>
+  return `<div class="verification-wait">
+  <p role="status"><span class="spinner" aria-hidden="true"></span>Your account is created. Waiting for you to open the link sent to <strong>${escape(state.email)}</strong>.</p>
+  <p class="fineprint">This continues on its own once you have. The link may take a minute, and it sometimes lands in spam. Wrong address? Correct it above and create the account again.</p>
   ${notice}
   <button type="button" id="resend-verification">Send the link again</button>
-  <button type="button" id="change-address" class="quiet">Use a different address</button>`;
+  </div>`;
 }
 
 // Screen three. The text and the version come from the app's own agreement, and

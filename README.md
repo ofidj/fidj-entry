@@ -58,25 +58,26 @@ copies and builds from them, so a change made here reaches nobody until that
 lands. `test/no-drift-from-the-generator.test.mjs` fails while the two disagree,
 and is deleted in the same change that deletes the generator's copies.
 
-## The three-screen flow
+## The entry flow
 
 [The workspace README](../README.md#entry-one-flow-the-same-everywhere) defines
 it; this package implements it, so every surface gets the same one.
 
 ```ts
 import {
-  credentialFields, // screen one: email, password, two buttons, nothing gated
-  verificationWait, // screen two: the wait a new account owes its address
+  credentialFields, // email, password, two buttons, nothing gated
+  verificationWait, // the wait a new account owes its address, under that form
   pollVerification, // ...which ends by itself when the link is opened
   agreementRequired, // was this refusal "you owe this app its agreement"?
   agreementFromRefusal, // ...and the agreement it refused with
-  agreementScreen, // screen three
+  agreementScreen, // the second screen
   bindAgreementScreen, // whose submit is read-only until the box is ticked
 } from "@ofidj/entry";
 ```
 
 **The API decides, not the screen.** Call `login`, and when it refuses with
-`409 agreement_required`, show screen three. A screen that decided for itself
+`409 agreement_required`, show the agreement screen. A screen that decided for
+itself
 would have to know which version the account already accepted, which is the
 API's to know — and an owner publishing a new version is what makes the
 question owed again.
@@ -90,6 +91,12 @@ somebody accept text the API is about to call stale. It needs `@ofidj/node`
 `err.toString()` and losing the body; against an older SDK it returns `null` and
 the caller falls back to fetching.
 
+**The wait is not a screen.** `verificationWait` returns a block to put _under_
+the credential form, which stays where it is. That is what keeps a mistyped
+address correctable: the field is still there, still filled in — correcting it
+and creating the account again is the repair, and it reads as one because
+nothing moved.
+
 **`pollVerification` treats a failed check as no answer.** A browser that lost
 its connection has learned nothing about the address, so the wait continues
 rather than reporting anything.
@@ -99,7 +106,7 @@ rather than reporting anything.
 `agreementMarkup` and `bindAgreement` are the _old_ arrangement — the checkbox
 beside the credentials, whose submit opens as soon as the agreement has loaded,
 ticked or not. They stay until the generated shells and the console move to the
-three screens, and go in the same change that moves them. New code uses
+two screens, and go in the same change that moves them. New code uses
 `agreementScreen` and `bindAgreementScreen`.
 
 ## Release

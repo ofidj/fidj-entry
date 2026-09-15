@@ -10,9 +10,10 @@ import {
   pollVerification,
 } from "../dist/index.js";
 
-// The entry flow the workspace README fixes: credentials with nothing gating
-// them, a verification wait on the account-creation path, then the agreement on
-// a screen of its own whose submit stays read-only until it is ticked.
+// The entry flow the workspace README fixes: one screen asking for an email and
+// a password with nothing gating it — which, after Create an account, grows a
+// wait underneath it — and then the agreement on a screen of its own, whose
+// submit stays read-only until it is ticked.
 
 let dom;
 beforeEach(() => {
@@ -73,24 +74,43 @@ test("an ordinary refusal is not an agreement to collect", () => {
     );
 });
 
-// ---------------------------------------------------------------- screen two
+// ------------------------------------------- the wait, under the same form
 
 test("creating an account waits, and says where the link went", () => {
   const markup = verificationWait({ email: "someone@example.com" });
-  assert.match(markup, /role="status"/, "a waiting screen announces itself");
+  assert.match(markup, /role="status"/, "the wait announces itself");
   assert.match(markup, /class="[^"]*spinner/, "the wait is visible");
   assert.match(markup, /someone@example\.com/);
   assert.match(markup, /id="resend-verification"/);
-  assert.match(
-    markup,
-    /id="change-address"/,
-    "a mistyped address is recoverable",
-  );
 });
 
-test("the waiting screen never claims the person is signed in", () => {
+test("the wait goes under the form, so it is not a screen of its own", () => {
+  const markup = verificationWait({ email: "someone@example.com" });
+  // No heading: a heading makes this read as somewhere the person was taken,
+  // and they were not — the form they just used is still above it.
+  assert.doesNotMatch(markup, /<h1|<h2/);
+  // And nothing offering "use a different address": the address field is right
+  // there, which is the whole reason the form stays.
+  assert.doesNotMatch(markup, /change-address/);
+});
+
+test("the wait never claims the person is signed in", () => {
   const markup = verificationWait({ email: "someone@example.com" });
   assert.doesNotMatch(markup, /signed in|Welcome back/i);
+});
+
+test("the form is still there underneath the wait", () => {
+  document.getElementById("entry").innerHTML =
+    credentialFields({ email: "someone@example.com", password: "" }) +
+    verificationWait({ email: "someone@example.com" });
+  const email = document.getElementById("email");
+  assert.ok(email, "the address field survives the wait");
+  assert.equal(email.value, "someone@example.com");
+  assert.equal(email.disabled, false, "a mistyped address stays correctable");
+  assert.ok(
+    document.getElementById("resend-verification"),
+    "and the wait is under it",
+  );
 });
 
 test("an address on the waiting screen cannot smuggle markup", () => {
