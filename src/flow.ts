@@ -152,3 +152,17 @@ export function agreementFromRefusal(
   if (typeof agreement?.text !== "string" || !agreement.text) return null;
   return { version: agreement.version, text: agreement.text };
 }
+
+// What the SDK says when POST /v3/users answered 201: the account was created
+// by this very call, so there is no session and the link is what will make one.
+//
+// It returns the address rather than a boolean because the wait has to name it,
+// and the address the account was created with is the one the link went to —
+// not whatever is in the field by the time this is read.
+export function verificationPending(error: unknown): {email: string} | null {
+  if (!error || typeof error !== "object") return null;
+  const detail = error as {reason?: unknown; details?: {email?: unknown}};
+  if (detail.reason !== "verification-required") return null;
+  const email = detail.details?.email;
+  return {email: typeof email === "string" ? email : ""};
+}

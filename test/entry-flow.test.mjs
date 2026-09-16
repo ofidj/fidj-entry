@@ -242,3 +242,41 @@ test("a refusal that carried nothing usable says so, rather than half an agreeme
       `${JSON.stringify(thin)} is not an agreement to display`,
     );
 });
+
+// ------------------------------- what the SDK says when an account was created
+
+test("an account that was just created is recognised, with the address it used", async () => {
+  const { verificationPending } = await import("../dist/index.js");
+  assert.deepEqual(
+    verificationPending({
+      code: 403,
+      reason: "verification-required",
+      details: { email: "someone@example.com" },
+    }),
+    { email: "someone@example.com" },
+  );
+});
+
+test("an ordinary refusal is not an account waiting on its link", async () => {
+  const { verificationPending } = await import("../dist/index.js");
+  for (const other of [
+    { code: 403, reason: "not connected" },
+    { code: 409, reason: "agreement_required" },
+    { code: 401 },
+    null,
+    "verification-required",
+  ])
+    assert.equal(
+      verificationPending(other),
+      null,
+      `${JSON.stringify(other)} is not a created account`,
+    );
+});
+
+test("a created account with no address still stops the sign-in", async () => {
+  const { verificationPending } = await import("../dist/index.js");
+  assert.deepEqual(
+    verificationPending({ code: 403, reason: "verification-required" }),
+    { email: "" },
+  );
+});

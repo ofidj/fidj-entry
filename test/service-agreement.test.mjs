@@ -2,10 +2,9 @@ import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import {
-  agreementMarkup,
+  agreementScreen,
   acceptedAgreement,
   signInErrorMessage,
-  bindAgreement,
   providerEntry,
   signInHint,
   rememberSignIn,
@@ -29,28 +28,16 @@ beforeEach(() => {
 });
 
 const form = (checked, version) => {
-  document.getElementById("signin").innerHTML =
-    agreementMarkup() + '<button type="submit">Continue</button>';
+  document.getElementById("signin").innerHTML = agreementScreen("Test App", {
+    version: version ?? "",
+    text: "Terms.",
+  });
   const element = document.getElementById("signin");
   const box = element.querySelector("#service-agreement");
-  if (version !== undefined) {
-    box.dataset.version = version;
-    box.disabled = false;
-  }
+  if (version === undefined) delete box.dataset.version;
   box.checked = Boolean(checked);
   return element;
 };
-
-test("the agreement starts disabled, so nothing is accepted before it loads", () => {
-  const element = form();
-  const box = element.querySelector("#service-agreement");
-  assert.equal(box.disabled, true);
-  assert.equal(box.checked, false);
-  assert.match(
-    element.querySelector("#agreement-status").textContent,
-    /Loading service agreement/,
-  );
-});
 
 test("acceptance needs the tick and the version it was shown with", () => {
   assert.equal(acceptedAgreement(form(false, "v2")), null, "unticked");
@@ -82,52 +69,6 @@ test("sign-in failures are named in words a person can act on", () => {
     /cannot reach Fidj/,
   );
   assert.match(signInErrorMessage({}), /Please try again/);
-});
-
-// What the submit button is actually gated on, which is not what
-// generator-fidj's README says. `update()` copies the checkbox's *disabled*
-// state onto the submit, so the door opens as soon as the agreement has
-// loaded — ticked or not. Refusing an unticked submit is done afterwards, by
-// the caller's submit handler, which answers with "Please accept the service
-// agreement before continuing." The README claims "Both submit buttons stay
-// disabled until it is checked"; the target flow asks for exactly that, on the
-// agreement screen. Both are changes to make deliberately, not side effects of
-// moving this file, so this states today's behaviour.
-test("the submit waits for the agreement to load, not for the tick", async () => {
-  const element = form();
-  // jsdom implements no fetch, so the answer is shaped by hand: ok, and a json()
-  // that resolves to what GET /apps/:appId returns.
-  global.fetch = async () => ({
-    ok: true,
-    status: 200,
-    json: async () => ({
-      app: { agreement: { version: "v9", text: "Terms." } },
-    }),
-  });
-  await bindAgreement(element, "Mat Cloud App", "https://api.example", "app-1");
-  const box = element.querySelector("#service-agreement");
-  const submit = element.querySelector('button[type="submit"]');
-  assert.equal(box.disabled, false, "the agreement loaded");
-  assert.equal(box.dataset.version, "v9");
-  assert.equal(submit.disabled, false, "open once the agreement is loaded");
-  box.checked = true;
-  box.dispatchEvent(new dom.window.Event("change"));
-  assert.equal(submit.disabled, false, "and still open once ticked");
-  assert.equal(
-    element.querySelector("#agreement-label").textContent,
-    "I accept the service agreement for Mat Cloud App.",
-  );
-});
-
-test("an agreement that cannot be loaded keeps the door shut and offers a retry", async () => {
-  const element = form();
-  global.fetch = async () => {
-    throw new Error("network down");
-  };
-  await bindAgreement(element, "Mat Cloud App", "https://api.example", "app-1");
-  assert.equal(element.querySelector("#service-agreement").disabled, true);
-  assert.equal(element.querySelector('button[type="submit"]').disabled, true);
-  assert.equal(element.querySelector("#retry-agreement").hidden, false);
 });
 
 test("the button shape offers Fidj and no credential form", () => {

@@ -101,13 +101,13 @@ nothing moved.
 its connection has learned nothing about the address, so the wait continues
 rather than reporting anything.
 
-### Not this, yet
+### What went with the old arrangement
 
-`agreementMarkup` and `bindAgreement` are the _old_ arrangement — the checkbox
-beside the credentials, whose submit opens as soon as the agreement has loaded,
-ticked or not. They stay until the generated shells and the console move to the
-two screens, and go in the same change that moves them. New code uses
-`agreementScreen` and `bindAgreementScreen`.
+`agreementMarkup` and `bindAgreement` are gone. They put the checkbox beside the
+credentials and gated the submit on whether the agreement had *loaded*, ticked or
+not; the generated shells both render the two screens now, so nothing called
+them. `agreementScreen` and `bindAgreementScreen` replace them, and the tick is
+what opens the door.
 
 ## Release
 

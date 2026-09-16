@@ -1,7 +1,3 @@
-export function agreementMarkup() {
-  return `<div class="signin-agreement"><label class="agreement-choice"><input id="service-agreement" type="checkbox" aria-required="true" disabled><span id="agreement-label">I accept the service agreement for this app.</span></label><button type="button" id="read-agreement" disabled>Read service agreement</button><p id="agreement-status" class="fineprint" role="status">Loading service agreement…</p><button type="button" id="retry-agreement" hidden>Retry</button></div><dialog id="agreement-dialog" aria-labelledby="agreement-heading"><h2 id="agreement-heading">Service agreement</h2><p id="agreement-version"></p><p id="agreement-text"></p><button type="button" id="close-agreement">Close agreement</button></dialog>`;
-}
-
 export function acceptedAgreement(form: HTMLFormElement) {
   const checkbox = form.querySelector<HTMLInputElement>("#service-agreement");
   if (!checkbox?.checked || checkbox.disabled || !checkbox.dataset.version) return null;
@@ -16,58 +12,6 @@ export function signInErrorMessage(error: unknown) {
   if (reason === "already exists - inconsistent request") return "An account already uses this email. Check the password or sign in instead.";
   if (/ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|EHOSTUNREACH|network/i.test(reason)) return "We cannot reach Fidj right now. Please try again.";
   return "We could not sign in to this account. Please try again.";
-}
-
-export async function bindAgreement(form: HTMLFormElement | null, title: string, endpoint: string, appId: string, checked = false) {
-  if (!form) return;
-  // An app whose only door is Fidj carries no agreement block: Fidj asks for
-  // this app's agreement on the screen that names it, and records the version.
-  const checkbox = form.querySelector<HTMLInputElement>("#service-agreement");
-  if (!checkbox) return;
-  const read = form.querySelector<HTMLButtonElement>("#read-agreement")!;
-  const dialog = form.querySelector<HTMLDialogElement>("#agreement-dialog")!;
-  const status = form.querySelector<HTMLElement>("#agreement-status")!;
-  const retry = form.querySelector<HTMLButtonElement>("#retry-agreement")!;
-  // What this agreement gates is the app's own door, and only that one. The
-  // Fidj door is about to be asked the same question on the screen that names
-  // the app, where the answer is recorded with its version — so an agreement
-  // that is still loading, or that could not be loaded at all, must not be what
-  // stands between a person and the door that does not need it.
-  const gated = form.querySelector("#email-entry") || form;
-  const submitButtons = gated.querySelectorAll<HTMLButtonElement>('button[type="submit"]');
-  const update = () => submitButtons.forEach(button => { button.disabled = checkbox.disabled; });
-  form.querySelector("#agreement-label")!.textContent = `I accept the service agreement for ${title}.`;
-  update();
-  checkbox.addEventListener("change", update);
-  read.addEventListener("click", () => dialog.showModal());
-  form.querySelector("#close-agreement")!.addEventListener("click", () => dialog.close());
-  const load = async () => {
-    retry.hidden = true;
-    status.textContent = "Loading service agreement…";
-    try {
-      const response = await fetch(`${endpoint}/apps/${encodeURIComponent(appId)}`, {signal: AbortSignal.timeout(10000)});
-      if (!response.ok) throw new Error(response.status === 404 ? "missing" : "unreachable");
-      const agreement = (await response.json()).app?.agreement;
-      if (!agreement || typeof agreement.version !== "string" || !agreement.version || typeof agreement.text !== "string" || !agreement.text) throw new Error("missing");
-      if (!form.isConnected) return;
-      checkbox.dataset.version = agreement.version;
-      checkbox.disabled = false;
-      checkbox.checked = checked;
-      read.disabled = false;
-      dialog.querySelector("#agreement-version")!.textContent = `Version ${agreement.version}`;
-      dialog.querySelector("#agreement-text")!.textContent = agreement.text;
-      status.textContent = "Required to sign in. Optional data choices stay separate.";
-      update();
-    } catch (error) {
-      if (!form.isConnected) return;
-      status.textContent = error instanceof Error && error.message === "missing"
-        ? "This app has no service agreement available."
-        : "We cannot reach Fidj right now. Try again.";
-      retry.hidden = false;
-    }
-  };
-  retry.addEventListener("click", load);
-  await load();
 }
 
 // The entry every app that delegates to the provider renders, in one place
@@ -142,9 +86,7 @@ export function providerEntry(
         isFidjItself
           ? "One account across every app that uses Fidj, and a separate set of choices for each one."
           : `${escapeText(title)} accounts are Fidj accounts. Sign in below — ${escapeText(title)} handles your password itself on this page.`
-      }</p>` +
-      agreementMarkup() +
-      credentials
+      }</p>` + credentials
     );
   const lead = hint
     ? `<p class="signin-lead">You signed in here with Fidj before. ${escapeText(title)} accounts are Fidj accounts — continue as yourself, or use another.</p>`
@@ -170,7 +112,7 @@ export function providerEntry(
     lead +
     fidj +
     `<div class="signin-alternate"><button type="button" id="use-email" class="signin-toggle" aria-expanded="false" aria-controls="email-entry"><span class="signin-toggle-label">Inline form<span class="caret" aria-hidden="true"></span></span></button>
-  <div id="email-entry" hidden>${agreementMarkup()}${credentials}</div></div>`
+  <div id="email-entry" hidden>${credentials}</div></div>`
   );
 }
 

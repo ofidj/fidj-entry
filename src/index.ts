@@ -6,10 +6,8 @@
 // two being kept in step by hand — which is how the service agreement ended up
 // existing in four copies that no test could diff.
 export {
-  agreementMarkup,
   acceptedAgreement,
   signInErrorMessage,
-  bindAgreement,
   providerEntry,
   signInHint,
   rememberSignIn,
@@ -35,6 +33,7 @@ export {
 } from "./screens.js";
 export {
   agreementRequired,
+  verificationPending,
   agreementFromRefusal,
   verificationWait,
   agreementScreen,
