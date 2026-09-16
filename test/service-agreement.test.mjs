@@ -2,14 +2,16 @@ import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import {
-  agreementScreen,
-  acceptedAgreement,
   signInErrorMessage,
-  providerEntry,
   signInHint,
   rememberSignIn,
   forgetSignIn,
 } from "../dist/index.js";
+import {
+  agreementScreen,
+  acceptedAgreement,
+  providerEntry,
+} from "../dist/dom.js";
 
 // These are characterization tests: they state the behaviour the generated
 // apps already depend on, so that moving the code out of generator-fidj cannot

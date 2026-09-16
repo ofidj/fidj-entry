@@ -8,7 +8,7 @@ import {
   credentialFields,
   accountForm,
   returnNotice,
-} from "../dist/index.js";
+} from "../dist/dom.js";
 
 // The markup the entry draws, lifted out of generator-fidj's content.ts. These
 // assert what the screens say and what they gate on; the shells that hold them
@@ -47,7 +47,10 @@ test("highlights are numbered from one, and absent when there are none", () => {
 test("badges are a footer, or nothing at all", () => {
   assert.equal(badgeStrip([]), "");
   assert.equal(badgeStrip(undefined), "");
-  assert.match(badgeStrip(["Beta", "EU"]), /<span>Beta<\/span><span>EU<\/span>/);
+  assert.match(
+    badgeStrip(["Beta", "EU"]),
+    /<span>Beta<\/span><span>EU<\/span>/,
+  );
 });
 
 test("the credential fields carry both doors and what was already typed", () => {
@@ -96,7 +99,10 @@ test("my account names who is signed in and whether they are verified", () => {
     accountEmail: "someone@example.com",
     emailVerified: false,
   });
-  assert.match(unverified, /Signed in as <strong>someone@example\.com<\/strong>/);
+  assert.match(
+    unverified,
+    /Signed in as <strong>someone@example\.com<\/strong>/,
+  );
   assert.match(unverified, /not verified yet/);
   assert.match(unverified, /id="resend-verification"/);
   const verified = accountForm("account", {
@@ -115,6 +121,9 @@ test("an address on the account screen cannot smuggle markup", () => {
 });
 
 test("a window that opened itself says where it will put you back", () => {
-  assert.match(returnNotice("Mat Cloud App"), /takes you back to Mat Cloud App/);
+  assert.match(
+    returnNotice("Mat Cloud App"),
+    /takes you back to Mat Cloud App/,
+  );
   assert.match(returnNotice("<b>"), /&lt;b&gt;/);
 });

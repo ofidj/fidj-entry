@@ -1,43 +1,38 @@
-// The Fidj entry, in one place.
+// The Fidj entry: the rules, and every sentence a person is shown.
 //
-// Everything here was lifted verbatim out of generator-fidj's template, where
-// it could only ship by being generated. It is a package now so that the
-// console can import the same screens a generated app renders, instead of the
-// two being kept in step by hand — which is how the service agreement ended up
-// existing in four copies that no test could diff.
-export {
-  acceptedAgreement,
-  signInErrorMessage,
-  providerEntry,
-  signInHint,
-  rememberSignIn,
-  forgetSignIn,
-  showEmailEntry,
-  type SigninShape,
-} from "./service-agreement.js";
-export {
-  openProviderWindow,
-  relayProviderAnswer,
-  type ProviderWindow,
-} from "./provider-window.js";
-export { showVersionBadge } from "./version.js";
-export {
-  escape,
-  masthead,
-  highlightCells,
-  badgeStrip,
-  credentialFields,
-  accountForm,
-  returnNotice,
-  type AccountState,
-} from "./screens.js";
+// This root is pure. No DOM, no markup, no view layer — a screen is a value, so
+// the same entry can be drawn as HTML strings, as React components or as Vue
+// single-file components without any of them re-deriving a rule or re-typing a
+// sentence. That is what the package is for: these screens used to live only in
+// generator-fidj's template, where shipping them meant generating an app, and
+// the alternative — keeping a second copy in step by hand — is what produced
+// four versions of the service agreement that no test could diff.
+//
+// Two subpaths carry what cannot be pure:
+//   @ofidj/entry/dom     the HTML renderer and the helpers that drive a document
+//   @ofidj/entry/window  the Fidj window and the answer it relays back
 export {
   agreementRequired,
-  verificationPending,
   agreementFromRefusal,
-  verificationWait,
-  agreementScreen,
-  bindAgreementScreen,
+  verificationPending,
+  signInErrorMessage,
+  acceptance,
+  providerEntryModel,
+  agreementModel,
+  verificationWaitModel,
+  accountModel,
+  credentialsModel,
+  returnNoticeModel,
   pollVerification,
+  type SigninShape,
+  type EntryControl,
+  type ProviderEntryModel,
+  type AgreementModel,
   type VerificationState,
-} from "./flow.js";
+  type VerificationWaitModel,
+  type AccountState,
+  type AccountField,
+  type AccountModel,
+  type CredentialsModel,
+} from "./model.js";
+export { signInHint, rememberSignIn, forgetSignIn } from "./remembered.js";

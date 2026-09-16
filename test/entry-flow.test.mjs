@@ -1,14 +1,13 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
+import { agreementRequired, pollVerification } from "../dist/index.js";
 import {
   credentialFields,
-  agreementRequired,
   verificationWait,
   agreementScreen,
   bindAgreementScreen,
-  pollVerification,
-} from "../dist/index.js";
+} from "../dist/dom.js";
 
 // The entry flow the workspace README fixes: one screen asking for an email and
 // a password with nothing gating it — which, after Create an account, grows a

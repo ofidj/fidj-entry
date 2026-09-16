@@ -26,10 +26,86 @@ renders, so there is one implementation and no hand-porting.
 npm install @ofidj/entry
 ```
 
-```ts
-import { providerEntry, bindAgreement, acceptedAgreement } from "@ofidj/entry";
+Three entry points, split by what they need to run:
+
+| Import                | Needs            | What it holds                                                                  |
+| --------------------- | ---------------- | ------------------------------------------------------------------------------ |
+| `@ofidj/entry`        | nothing          | **the model**: every rule, and every sentence a person is shown, as plain data |
+| `@ofidj/entry/dom`    | a document       | one renderer of that model as HTML strings, and the helpers that drive it      |
+| `@ofidj/entry/window` | a browser window | the Fidj window and the answer it relays back                                  |
+
+The root is pure — no DOM, no markup, no view layer. That is deliberate: a
+screen is a **value**, so the same entry can be drawn as HTML strings, as React
+components or as Vue single-file components, and none of them re-derives a rule
+or re-types a sentence.
+
+### On React, Vue, Svelte, or a server
+
+Take the model and render it yourself. Nothing here assumes a browser, so it
+works under SSR, in a test, or in a plain Node script.
+
+```tsx
+import {
+  agreementModel,
+  acceptance,
+  agreementRequired,
+  agreementFromRefusal,
+  verificationPending,
+  pollVerification,
+  signInErrorMessage,
+} from "@ofidj/entry";
+import { openProviderWindow } from "@ofidj/entry/window";
 import "@ofidj/entry/tokens.css";
 import "@ofidj/entry/style.css";
+
+function Agreement({ title, agreement, onAccepted }) {
+  const [checked, setChecked] = useState(false);
+  const screen = agreementModel(title, agreement, { checked });
+  return (
+    <form
+      onSubmit={() =>
+        onAccepted(acceptance({ checked, version: screen.version }))
+      }
+    >
+      <h2>{screen.heading}</h2>
+      <p className="signin-lead">{screen.lead}</p>
+      <p className="fineprint">{screen.versionLabel}</p>
+      <div className="agreement-text" tabIndex={0}>
+        {screen.text}
+      </div>
+      <label className="agreement-choice">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => setChecked(e.target.checked)}
+        />
+        <span>{screen.checkboxLabel}</span>
+      </label>
+      <button className="primary" disabled={screen.submitDisabled}>
+        {screen.submitLabel}
+      </button>
+    </form>
+  );
+}
+```
+
+`acceptance()` is the rule `@ofidj/entry/dom` applies to a checkbox, asked of
+your own state instead: a tick is evidence only if it was live and only if it
+names the version that was displayed. Both callers have to get the same answer,
+or the evidence means different things depending on who collected it.
+
+Authentication itself is not here — that is `@ofidj/node`. This package is the
+screens and the flow around them.
+
+### On a shell that builds pages out of strings
+
+```ts
+import { agreementRequired, agreementFromRefusal } from "@ofidj/entry";
+import {
+  agreementScreen,
+  bindAgreementScreen,
+  acceptedAgreement,
+} from "@ofidj/entry/dom";
 ```
 
 `tokens.css` defines every colour, family and radius the product paints with;
@@ -39,24 +115,24 @@ prefix.
 
 ## What is here, and what is not
 
-Moved, and covered by characterization tests in `test/`:
+| Module                                 | What it holds                                                                                                                           |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `model.ts`                             | the refusals and what they mean, the acceptance rule, and a model per screen: entry, agreement, verification wait, account, credentials |
+| `remembered.ts`                        | the address this browser remembers, and forgetting it                                                                                   |
+| `dom.ts`                               | the HTML renderer, the agreement binding, the folding form, the `fidj@<version>` badge                                                  |
+| `provider-window.ts`                   | the Fidj window and the answer it relays back                                                                                           |
+| `tokens.css`, `fonts.css`, `style.css` | the design system                                                                                                                       |
 
-| Module                                 | What it holds                                                                                                      |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `service-agreement.ts`                 | the agreement block and its loading, `providerEntry`'s three shapes, the remembered address, sign-in error wording |
-| `provider-window.ts`                   | the Fidj window and the answer it relays back                                                                      |
-| `version.ts`                           | the `fidj@<version>` badge                                                                                         |
-| `tokens.css`, `fonts.css`, `style.css` | the design system                                                                                                  |
+Two tests hold the split, and they are the reason it stays true. One exercises
+every model function in a file that never loads jsdom and never defines `window`
+or `document`. The other asserts the HTML renderer says **what the model says**
+and invents nothing — because a sentence able to drift between the two is a
+React app and a generated app telling the same person different things, which is
+the failure this package exists to end.
 
-Still in `generator-fidj`'s template, and next to move: the screens inside
-`content.ts` — the sign-in entry, `#/forgot`, `#/reset`, `#/verify`, `#/account`
-and the Fidj-hosted OIDC interaction page. They import `app.config.json`
-directly, so they move behind a config argument rather than verbatim.
-
-**The generator has not switched over yet.** Its template still carries its own
-copies and builds from them, so a change made here reaches nobody until that
-lands. `test/no-drift-from-the-generator.test.mjs` fails while the two disagree,
-and is deleted in the same change that deletes the generator's copies.
+Still in `generator-fidj`'s template, and next to move: the Fidj-hosted OIDC
+interaction page. It imports `app.config.json` directly, so it moves behind a
+config argument rather than verbatim.
 
 ## The entry flow
 
@@ -65,14 +141,20 @@ it; this package implements it, so every surface gets the same one.
 
 ```ts
 import {
-  credentialFields, // email, password, two buttons, nothing gated
-  verificationWait, // the wait a new account owes its address, under that form
-  pollVerification, // ...which ends by itself when the link is opened
+  pollVerification, // the wait ends by itself when the link is opened
   agreementRequired, // was this refusal "you owe this app its agreement"?
   agreementFromRefusal, // ...and the agreement it refused with
-  agreementScreen, // the second screen
-  bindAgreementScreen, // whose submit is read-only until the box is ticked
+  verificationPending, // was it "nobody has proved this address yet"?
+  credentialsModel, // email, password, two buttons, nothing gated
+  verificationWaitModel, // the wait a new account owes its address
+  agreementModel, // the second screen, and when its submit is live
 } from "@ofidj/entry";
+import {
+  credentialFields,
+  verificationWait,
+  agreementScreen,
+  bindAgreementScreen,
+} from "@ofidj/entry/dom"; // ...the same screens, as markup
 ```
 
 **The API decides, not the screen.** Call `login`, and when it refuses with
@@ -104,7 +186,7 @@ rather than reporting anything.
 ### What went with the old arrangement
 
 `agreementMarkup` and `bindAgreement` are gone. They put the checkbox beside the
-credentials and gated the submit on whether the agreement had *loaded*, ticked or
+credentials and gated the submit on whether the agreement had _loaded_, ticked or
 not; the generated shells both render the two screens now, so nothing called
 them. `agreementScreen` and `bindAgreementScreen` replace them, and the tick is
 what opens the door.

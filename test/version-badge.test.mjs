@@ -1,7 +1,7 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
-import { showVersionBadge } from "../dist/index.js";
+import { showVersionBadge } from "../dist/dom.js";
 
 // Moved from generator-fidj's version.test.cjs, which read the guard back out
 // of the source with a regex because the function was not importable from

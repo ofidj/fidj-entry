@@ -1,6 +1,6 @@
 {
   "name": "@ofidj/entry",
-  "version": "3.10.1",
+  "version": "3.11.0",
   "description": "The Fidj entry: sign-in, account recovery, the service agreement and the design system, shared verbatim by Fidj, the generated apps and the console.",
   "license": "MIT",
   "publishConfig": {
@@ -13,6 +13,14 @@
     ".": {
       "types": "./index.d.ts",
       "default": "./index.js"
+    },
+    "./dom": {
+      "types": "./dom.d.ts",
+      "default": "./dom.js"
+    },
+    "./window": {
+      "types": "./window.d.ts",
+      "default": "./window.js"
     },
     "./tokens.css": "./tokens.css",
     "./fonts.css": "./fonts.css",
