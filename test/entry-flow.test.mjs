@@ -2,6 +2,7 @@ import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import { agreementRequired, pollVerification } from "../dist/index.js";
+import * as entryDom from "../dist/dom.js";
 import {
   credentialFields,
   verificationWait,
@@ -38,6 +39,32 @@ test("screen one asks for an email and a password, and gates neither button", ()
     /disabled/,
     "nothing on screen one starts disabled",
   );
+});
+
+test("the shared password reveal control survives a dynamically rendered form", () => {
+  document.getElementById("entry").innerHTML = credentialFields({
+    email: "",
+    password: "secret",
+  });
+  entryDom.bindPasswordReveal(document.getElementById("entry"));
+  const password = document.getElementById("password");
+  const reveal = document.getElementById("reveal");
+
+  reveal.click();
+  assert.equal(password.type, "text");
+  assert.equal(reveal.textContent, "Hide");
+
+  reveal.click();
+  assert.equal(password.type, "password");
+  assert.equal(reveal.textContent, "Show");
+});
+
+test("opening the inline form hides the redundant different-account action", () => {
+  document.body.innerHTML = `<button id="forget-hint">Use a different account</button><button id="fidj-entry" class="fidj-entry"></button><button id="use-email"></button><div id="email-entry" hidden><input id="email"></div>`;
+  entryDom.showEmailEntry(true);
+  assert.equal(document.getElementById("forget-hint").hidden, true);
+  entryDom.showEmailEntry(false);
+  assert.equal(document.getElementById("forget-hint").hidden, false);
 });
 
 // -------------------------------------------------------------- the trigger
@@ -165,14 +192,23 @@ test("a check that throws is not an answer, and does not end the wait", async ()
 
 // -------------------------------------------------------------- screen three
 
-test("screen three shows the agreement, its version, and a required tick", () => {
-  const markup = agreementScreen("Mat Cloud App", {
-    version: "2026-09-11",
-    text: "The full agreement.",
-  });
+test("screen three shows the agreement and links its versioned document", () => {
+  const markup = agreementScreen(
+    "Mat Cloud App",
+    {
+      version: "2026-09-11",
+      text: "The full agreement.",
+    },
+    "https://api.example/v3/apps/app/agreements/2026-09-11",
+  );
   assert.match(markup, /Mat Cloud App/);
   assert.match(markup, /2026-09-11/);
-  assert.match(markup, /The full agreement\./);
+  assert.match(
+    markup,
+    /href="https:\/\/api\.example\/v3\/apps\/app\/agreements\/2026-09-11"/,
+  );
+  assert.match(markup, /target="fidj-agreement"/);
+  assert.match(markup, /class="agreement-text"[^>]*>The full agreement\./);
   assert.match(markup, /id="service-agreement"[^>]*required/);
   assert.doesNotMatch(
     markup,
@@ -188,6 +224,7 @@ test("screen three's submit is read-only until the box is ticked", () => {
       version: "v9",
       text: "Terms.",
     },
+    "https://api.example/agreement/v9",
   );
   const form = document.getElementById("entry");
   bindAgreementScreen(form);
@@ -203,10 +240,14 @@ test("screen three's submit is read-only until the box is ticked", () => {
 });
 
 test("screen three carries the version it displayed, so acceptance is evidence", () => {
-  document.getElementById("entry").innerHTML = agreementScreen("App", {
-    version: "2026-09-11",
-    text: "Terms.",
-  });
+  document.getElementById("entry").innerHTML = agreementScreen(
+    "App",
+    {
+      version: "2026-09-11",
+      text: "Terms.",
+    },
+    "https://api.example/agreement/2026-09-11",
+  );
   const box = document.querySelector("#service-agreement");
   assert.equal(box.dataset.version, "2026-09-11");
 });

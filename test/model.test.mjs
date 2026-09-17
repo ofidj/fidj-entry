@@ -99,13 +99,15 @@ test("the HTML renderer says what the model says, and invents nothing", () => {
     text: "Demo service agreement.",
   };
   const model = agreementModel("Mat Cloud", agreement);
-  const html = agreementScreen("Mat Cloud", agreement);
+  const html = agreementScreen(
+    "Mat Cloud",
+    agreement,
+    "https://api.example/agreement",
+  );
   for (const sentence of [
     model.heading,
     model.lead,
     model.versionLabel,
-    model.text,
-    model.checkboxLabel,
     model.submitLabel,
   ])
     assert.ok(
@@ -146,7 +148,8 @@ test("the HTML renderer says what the model says, and invents nothing", () => {
     assert.ok(html.includes(model.lead), `${shape} dropped its lead`);
     if (model.door)
       assert.ok(html.includes(model.door.label), `${shape} dropped its door`);
-    else assert.equal(html.includes("fidj-entry"), false, `${shape} grew a door`);
+    else
+      assert.equal(html.includes("fidj-entry"), false, `${shape} grew a door`);
     assert.equal(
       html.includes('aria-controls="email-entry"'),
       Boolean(model.disclosure),

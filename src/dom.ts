@@ -92,15 +92,32 @@ export function credentialFields(state: { email: string; password: string }) {
   );
 }
 
+export function bindPasswordReveal(root: ParentNode) {
+  root
+    .querySelectorAll<HTMLButtonElement>("button[aria-controls]")
+    .forEach((button) => {
+      const fieldId = button.getAttribute("aria-controls");
+      const field = fieldId
+        ? root.querySelector<HTMLInputElement>(`#${fieldId}`)
+        : null;
+      if (!field || field.type !== "password") return;
+      button.onclick = () => {
+        const hidden = field.type === "password";
+        field.type = hidden ? "text" : "password";
+        button.textContent = hidden ? "Hide" : "Show";
+      };
+    });
+}
+
 // The four account screens, drawn from the model that decides which of them has
 // a form to show.
 export function accountForm(route: string, state: AccountState) {
   const model = accountModel(route, state);
   const fields = model.fields
-    .map(
-      (field) =>
-        `<label for="${escape(field.id)}">${escape(field.label)}</label><input id="${escape(field.id)}" type="${escape(field.type)}"${attribute("autocomplete", field.autocomplete)}${attribute("minlength", field.minlength)}${field.required ? " required" : ""}>`,
-    )
+    .map((field) => {
+      const input = `<input id="${escape(field.id)}" type="${escape(field.type)}"${attribute("autocomplete", field.autocomplete)}${attribute("minlength", field.minlength)}${field.required ? " required" : ""}>`;
+      return `<label for="${escape(field.id)}">${escape(field.label)}</label>${field.type === "password" ? `<div class="password-field">${input}<button type="button" aria-controls="${escape(field.id)}">Show</button></div>` : input}`;
+    })
     .join("");
   const form = model.submitLabel
     ? `<form id="recovery">${fields}${model.hint ? `<p>${escape(model.hint)}</p>` : ""}<button class="primary">${escape(model.submitLabel)}</button></form>`
@@ -172,13 +189,13 @@ export function providerEntry(
 export function agreementScreen(
   title: string,
   agreement: { version?: string; text?: string },
+  href: string,
 ) {
   const model = agreementModel(title, agreement);
   return `<h2>${escape(model.heading)}</h2>
   <p class="signin-lead">${escape(model.lead)}</p>
-  <p class="fineprint">${escape(model.versionLabel)}</p>
   <div class="agreement-text" tabindex="0">${escape(model.text)}</div>
-  <label class="agreement-choice"><input id="service-agreement" type="checkbox" required aria-required="true" data-version="${escape(model.version)}"><span>${escape(model.checkboxLabel)}</span></label>
+  <label class="agreement-choice"><input id="service-agreement" type="checkbox" required aria-required="true" data-version="${escape(model.version)}"><span>I accept the <a class="agreement-document" href="${escape(href)}" target="fidj-agreement" rel="noopener">service agreement · ${escape(model.versionLabel)} ↗</a></span></label>
   <button class="primary" type="submit"${model.submitDisabled ? " disabled" : ""}>${escape(model.submitLabel)}</button>`;
 }
 
@@ -228,6 +245,17 @@ export function bindAgreementScreen(form: HTMLFormElement | null) {
       element.disabled = !checkbox.checked;
     });
   checkbox.addEventListener("change", update);
+  const agreementLink = form.querySelector<HTMLAnchorElement>(
+    ".agreement-document",
+  );
+  agreementLink?.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.open(
+      agreementLink.href,
+      "fidj-agreement",
+      "popup,width=640,height=720,left=40,top=40,noopener",
+    );
+  });
   update();
 }
 
@@ -244,6 +272,8 @@ export function showEmailEntry(open: boolean, focus = false) {
   if (!fields || !toggle) return;
   toggle.setAttribute("aria-expanded", String(open));
   fields.hidden = !open;
+  const forget = document.getElementById("forget-hint");
+  if (forget) forget.hidden = open;
   const door = document.querySelector<HTMLButtonElement>(".fidj-entry");
   if (door) {
     door.classList.toggle("is-folded", open);

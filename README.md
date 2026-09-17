@@ -33,6 +33,7 @@ Three entry points, split by what they need to run:
 | `@ofidj/entry`        | nothing          | **the model**: every rule, and every sentence a person is shown, as plain data |
 | `@ofidj/entry/dom`    | a document       | one renderer of that model as HTML strings, and the helpers that drive it      |
 | `@ofidj/entry/window` | a browser window | the Fidj window and the answer it relays back                                  |
+| `@ofidj/entry/server` | a server          | the CSP-safe OIDC interaction renderer and its shared password binding          |
 
 The root is pure — no DOM, no markup, no view layer. That is deliberate: a
 screen is a **value**, so the same entry can be drawn as HTML strings, as React
@@ -119,7 +120,7 @@ prefix.
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `model.ts`                             | the refusals and what they mean, the acceptance rule, and a model per screen: entry, agreement, verification wait, account, credentials |
 | `remembered.ts`                        | the address this browser remembers, and forgetting it                                                                                   |
-| `dom.ts`                               | the HTML renderer, the agreement binding, the folding form, the `fidj@<version>` badge                                                  |
+| `dom.ts`                               | the HTML renderer, password/agreement bindings, the folding form, the `fidj@<version>` badge                                             |
 | `provider-window.ts`                   | the Fidj window and the answer it relays back                                                                                           |
 | `tokens.css`, `fonts.css`, `style.css` | the design system                                                                                                                       |
 
@@ -130,9 +131,11 @@ and invents nothing — because a sentence able to drift between the two is a
 React app and a generated app telling the same person different things, which is
 the failure this package exists to end.
 
-Still in `generator-fidj`'s template, and next to move: the Fidj-hosted OIDC
-interaction page. It imports `app.config.json` directly, so it moves behind a
-config argument rather than verbatim.
+Generated shells may own transport-specific form actions and page composition,
+but they do not own reusable entry components. Credential, signup, recovery and
+agreement markup rules and their browser bindings live here. When a shell
+replaces markup dynamically, it binds the newly rendered component through this
+package rather than reimplementing its behavior locally.
 
 ## The entry flow
 
