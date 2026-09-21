@@ -65,6 +65,8 @@ test("the server renderer owns the OIDC wait and consent screens", () => {
   assert.match(consent, /href="\/v3\/apps\/studio\/agreements\/v1"/);
   assert.match(consent, /target="fidj-agreement"/);
   assert.match(consent, /class="agreement-document"/);
+  assert.doesNotMatch(consent, /class="agreement-text"/);
+  assert.doesNotMatch(consent, />Terms</);
   assert.doesNotMatch(consent, /<details class="agreement">/);
   assert.match(consent, /I accept the <a[^>]+>service agreement/);
 });

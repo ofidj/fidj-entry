@@ -89,11 +89,7 @@ test("the model carries no browser API, in the built output", async () => {
   );
 });
 
-// The whole point of the split: one wording, two renderers. If a sentence can
-// drift between the model and the markup, then a React app and a generated app
-// say different things to the same person — which is exactly the failure the
-// package was created to end.
-test("the HTML renderer says what the model says, and invents nothing", () => {
+test("the HTML renderer keeps only the acceptance action from the model", () => {
   const agreement = {
     version: "starter-demo-1",
     text: "Demo service agreement.",
@@ -104,15 +100,15 @@ test("the HTML renderer says what the model says, and invents nothing", () => {
     agreement,
     "https://api.example/agreement",
   );
-  for (const sentence of [
-    model.heading,
-    model.lead,
-    model.versionLabel,
-    model.submitLabel,
-  ])
+  for (const sentence of [model.versionLabel, model.submitLabel])
     assert.ok(
       html.includes(sentence),
       `the agreement screen dropped: ${sentence}`,
+    );
+  for (const omitted of [model.heading, model.lead, model.text])
+    assert.ok(
+      !html.includes(omitted),
+      `the agreement screen still includes: ${omitted}`,
     );
 
   const wait = verificationWaitModel({ email: "a@b.c", resent: true });

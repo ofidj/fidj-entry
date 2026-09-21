@@ -434,9 +434,8 @@ export function accountModel(route: string, state: AccountState): AccountModel {
     };
   return {
     ...empty,
-    heading: "My Fidj account",
-    intro:
-      "Your identity is shared across your apps. Privacy choices remain separate for each app.",
+    heading: "Profile",
+    intro: "",
     status: state.emailVerified
       ? "Your email address is verified."
       : "Your email is not verified yet.",

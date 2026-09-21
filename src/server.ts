@@ -85,10 +85,7 @@ const consentFields = (page: OidcInteractionPage) => {
     page.agreement && page.agreementHref
       ? `<label class="agreement-choice"><input type="checkbox" name="terms" value="true" required> <span>I accept the <a class="agreement-document" href="${escape(page.agreementHref)}" target="fidj-agreement" rel="noopener">service agreement · version ${escape(page.agreement.version)} ↗</a></span></label>`
       : `<label class="agreement-choice"><input type="checkbox" name="terms" value="true" required> ${escape(agreement.checkboxLabel)}</label>`;
-  const agreementText = page.agreement
-    ? `<div class="agreement-text" tabindex="0">${escape(agreement.text)}</div>`
-    : "";
-  return `${identity}<p class="permission-title">${escape(page.appTitle)} will receive:</p><ul class="permission-list">${(page.scopes || []).map((scope) => `<li>${escape(scope)}</li>`).join("")}</ul>${agreementText}${agreementChoice}<button name="action" value="continue" disabled>Allow and continue</button><button class="secondary account-switch" name="action" value="switch" formnovalidate>Use another account</button><button class="cancel" name="action" value="cancel" formnovalidate>Cancel</button><script src="/oidc/assets/entry.js" defer></script>`;
+  return `${identity}<p class="permission-title">${escape(page.appTitle)} will receive:</p><ul class="permission-list">${(page.scopes || []).map((scope) => `<li>${escape(scope)}</li>`).join("")}</ul>${agreementChoice}<button name="action" value="continue" disabled>Allow and continue</button><button class="secondary account-switch" name="action" value="switch" formnovalidate>Use another account</button><button class="cancel" name="action" value="cancel" formnovalidate>Cancel</button><script src="/oidc/assets/entry.js" defer></script>`;
 };
 
 export function oidcInteractionPage(page: OidcInteractionPage) {

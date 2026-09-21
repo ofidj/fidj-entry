@@ -192,7 +192,7 @@ test("a check that throws is not an answer, and does not end the wait", async ()
 
 // -------------------------------------------------------------- screen three
 
-test("screen three shows the agreement and links its versioned document", () => {
+test("screen three leads directly with the agreement checkbox", () => {
   const markup = agreementScreen(
     "Mat Cloud App",
     {
@@ -201,14 +201,15 @@ test("screen three shows the agreement and links its versioned document", () => 
     },
     "https://api.example/v3/apps/app/agreements/2026-09-11",
   );
-  assert.match(markup, /Mat Cloud App/);
+  assert.doesNotMatch(markup, /Before you continue/);
+  assert.doesNotMatch(markup, /Mat Cloud App asks you to accept/);
+  assert.doesNotMatch(markup, /The full agreement\./);
   assert.match(markup, /2026-09-11/);
   assert.match(
     markup,
     /href="https:\/\/api\.example\/v3\/apps\/app\/agreements\/2026-09-11"/,
   );
   assert.match(markup, /target="fidj-agreement"/);
-  assert.match(markup, /class="agreement-text"[^>]*>The full agreement\./);
   assert.match(markup, /id="service-agreement"[^>]*required/);
   assert.doesNotMatch(
     markup,

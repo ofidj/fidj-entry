@@ -111,7 +111,11 @@ export function bindPasswordReveal(root: ParentNode) {
 
 // The four account screens, drawn from the model that decides which of them has
 // a form to show.
-export function accountForm(route: string, state: AccountState) {
+export function accountForm(
+  route: string,
+  state: AccountState,
+  options: { compact?: boolean } = {},
+) {
   const model = accountModel(route, state);
   const fields = model.fields
     .map((field) => {
@@ -130,9 +134,10 @@ export function accountForm(route: string, state: AccountState) {
   // My account keeps its own shape: an identity line, a status the page
   // refreshes in place, and the controls that act on it.
   return (
-    `<h2>${escape(model.heading)}</h2>` +
-    `<p class="account-identity">Signed in as <strong>${escape(state.accountEmail)}</strong></p>` +
-    `<p>${escape(model.intro)}</p>` +
+    (options.compact
+      ? ""
+      : `<h2>${escape(model.heading)}</h2><p class="account-identity">Signed in as <strong>${escape(state.accountEmail)}</strong></p>`) +
+    (model.intro ? `<p>${escape(model.intro)}</p>` : "") +
     `<p id="verification-status">${escape(model.status)}</p>` +
     model.extras
       .map(
@@ -192,10 +197,7 @@ export function agreementScreen(
   href: string,
 ) {
   const model = agreementModel(title, agreement);
-  return `<h2>${escape(model.heading)}</h2>
-  <p class="signin-lead">${escape(model.lead)}</p>
-  <div class="agreement-text" tabindex="0">${escape(model.text)}</div>
-  <label class="agreement-choice"><input id="service-agreement" type="checkbox" required aria-required="true" data-version="${escape(model.version)}"><span>I accept the <a class="agreement-document" href="${escape(href)}" target="fidj-agreement" rel="noopener">service agreement · ${escape(model.versionLabel)} ↗</a></span></label>
+  return `<label class="agreement-choice"><input id="service-agreement" type="checkbox" required aria-required="true" data-version="${escape(model.version)}"><span>I accept the <a class="agreement-document" href="${escape(href)}" target="fidj-agreement" rel="noopener">service agreement · ${escape(model.versionLabel)} ↗</a></span></label>
   <button class="primary" type="submit"${model.submitDisabled ? " disabled" : ""}>${escape(model.submitLabel)}</button>`;
 }
 
