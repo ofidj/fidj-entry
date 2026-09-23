@@ -4,9 +4,9 @@ The Fidj entry, as a package: the sign-in and account screens, the service
 agreement, the provider window and the design system. One implementation, shared
 by Fidj's own console, every generated app and mleweb.
 
-Read the [workspace README](../README.md) for the product target and
-[AGENTS.md](../AGENTS.md) for the working rules. The flow these screens
-implement is [Entry: one flow, the same everywhere](../README.md#entry-one-flow-the-same-everywhere).
+Read the [workspace README](../fidj-brain/README.md) for the product target and
+[AGENTS.md](../fidj-brain/AGENTS.md) for the working rules. The flow these screens
+implement is [Entry: one flow, the same everywhere](../fidj-brain/README.md#entry-one-flow-the-same-everywhere).
 
 ## Why it exists
 
@@ -139,7 +139,7 @@ package rather than reimplementing its behavior locally.
 
 ## The entry flow
 
-[The workspace README](../README.md#entry-one-flow-the-same-everywhere) defines
+[The workspace README](../fidj-brain/README.md#entry-one-flow-the-same-everywhere) defines
 it; this package implements it, so every surface gets the same one.
 
 ```ts
@@ -196,7 +196,7 @@ what opens the door.
 
 ## Release
 
-This package joins [the one release series](../README.md#one-release-series-for-every-ofidj-package)
+This package joins [the one release series](../fidj-brain/README.md#one-release-series-for-every-ofidj-package)
 and publishes from `./dist` when its `package` branch is pushed. It sits after
 `@ofidj/contracts` and `@ofidj/node` and before `@ofidj/generator-fidj` in the
 dependency chain, because the generator and the console both consume it.
