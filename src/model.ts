@@ -468,6 +468,24 @@ export type CredentialsModel = {
   signup: EntryControl;
 };
 
+// The passkey door (v3): the first way in, where the passkey can run. The
+// email and password stay under it, reached by the divider's words.
+export const passkeyDoorModel: EntryControl = {
+  id: "entry-passkey",
+  name: "entry",
+  value: "passkey",
+  kind: "primary",
+  label: "Continue with a passkey",
+};
+export const emailDividerLabel = "or with your email";
+
+// A promise of direction, not a feature: drawn, dated, and never a button
+// until the wallets exist.
+export const walletDoorModel = {
+  label: "EU Digital Identity Wallet / France Identité",
+  date: "From Dec 2026",
+};
+
 // Both doors, and what was already typed. The entry is rebuilt on every render
 // and a refused sign-in is a render, so the values come back in rather than
 // being lost with the markup that held them.

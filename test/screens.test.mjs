@@ -6,6 +6,7 @@ import {
   highlightCells,
   badgeStrip,
   credentialFields,
+  walletDoor,
   accountForm,
   returnNotice,
 } from "../dist/dom.js";
@@ -126,4 +127,32 @@ test("a window that opened itself says where it will put you back", () => {
     /takes you back to Mat Cloud App/,
   );
   assert.match(returnNotice("<b>"), /&lt;b&gt;/);
+});
+
+// v3: the passkey is the first door, the email under it, and the wallet is
+// drawn as a promise with its date, never as a working button.
+test("the passkey is the first door, then the email", () => {
+  const markup = credentialFields(
+    { email: "", password: "" },
+    { passkey: true },
+  );
+  assert.match(markup, /id="entry-passkey"[^>]*>Continue with a passkey/);
+  assert.ok(
+    markup.indexOf('id="entry-passkey"') < markup.indexOf('id="email"'),
+    "the passkey comes before the email",
+  );
+  assert.match(markup, /or with your email/);
+  assert.doesNotMatch(
+    credentialFields({ email: "", password: "" }),
+    /entry-passkey/,
+    "no passkey door where the passkey cannot run",
+  );
+});
+
+test("the wallet door is drawn disabled, with its date", () => {
+  const markup = walletDoor();
+  assert.match(markup, /EU Digital Identity Wallet/);
+  assert.match(markup, /From Dec 2026/i);
+  assert.match(markup, /aria-disabled="true"/);
+  assert.doesNotMatch(markup, /<button/);
 });

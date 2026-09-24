@@ -14,10 +14,13 @@ import {
   accountModel,
   agreementModel,
   credentialsModel,
+  emailDividerLabel,
+  passkeyDoorModel,
   providerEntryModel,
   returnNoticeModel,
   signInHint,
   verificationWaitModel,
+  walletDoorModel,
   type AccountState,
   type EntryControl,
   type SigninShape,
@@ -81,15 +84,27 @@ export function badgeStrip(entries?: string[]) {
     .join("")}</footer>`;
 }
 
-export function credentialFields(state: { email: string; password: string }) {
+export function credentialFields(
+  state: { email: string; password: string },
+  options: { passkey?: boolean } = {},
+) {
   const model = credentialsModel(state);
+  const passkey = options.passkey
+    ? `<button class="primary passkey" type="submit" id="${escape(passkeyDoorModel.id)}" name="${escape(passkeyDoorModel.name)}" value="${escape(passkeyDoorModel.value)}" formnovalidate>${escape(passkeyDoorModel.label)}</button>` +
+      `<p class="entry-divider"><span>${escape(emailDividerLabel)}</span></p>`
+    : "";
   return (
+    passkey +
     `<label for="email">${escape(model.email.label)}</label><input id="email" type="email" value="${escape(model.email.value)}" placeholder="${escape(model.email.placeholder)}" autocomplete="username">` +
     `<div class="field-head"><label for="password">${escape(model.password.label)}</label><a href="${escape(model.forgot.href)}">${escape(model.forgot.label)}</a></div>` +
     `<div class="password-field"><input id="password" type="password" value="${escape(model.password.value)}" placeholder="${escape(model.password.placeholder)}" autocomplete="current-password"><button type="button" id="reveal" aria-controls="password">${escape(model.reveal.label)}</button></div>` +
     `<button class="primary" type="submit" name="entry" value="credentials">${escape(model.submit.label)}</button>` +
     `<button class="secondary" type="submit" name="signup" value="true">${escape(model.signup.label)}</button>`
   );
+}
+
+export function walletDoor() {
+  return `<p class="wallet-door" aria-disabled="true"><span>${escape(walletDoorModel.label)}</span><span class="wallet-date">${escape(walletDoorModel.date)}</span></p>`;
 }
 
 export function bindPasswordReveal(root: ParentNode) {
@@ -310,4 +325,77 @@ export function showVersionBadge(version: string, apiEndpoint?: string): void {
       })
       .catch(() => undefined);
   }
+}
+
+// Passkeys in the browser (v3 P1-4). The API speaks base64url JSON; WebAuthn
+// speaks ArrayBuffers. These carry one to the other, both ways, for every
+// surface that runs the ceremony on a page of its own.
+const fromBase64url = (value: string) => {
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  const binary = atob(base64 + "===".slice((base64.length + 3) % 4));
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0)).buffer;
+};
+const toBase64url = (buffer: ArrayBuffer) =>
+  btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+const withIds = (list: any[] = []) =>
+  list.map((entry) => ({ ...entry, id: fromBase64url(entry.id) }));
+
+export function passkeySupported() {
+  return (
+    typeof window !== "undefined" &&
+    Boolean((window as any).PublicKeyCredential) &&
+    typeof navigator !== "undefined" &&
+    Boolean(navigator.credentials)
+  );
+}
+
+export async function passkeyAssertion(options: any) {
+  const credential: any = await navigator.credentials.get({
+    publicKey: {
+      ...options,
+      challenge: fromBase64url(options.challenge),
+      allowCredentials: withIds(options.allowCredentials),
+    },
+  });
+  const response = credential.response;
+  return {
+    id: credential.id,
+    rawId: toBase64url(credential.rawId),
+    type: credential.type,
+    response: {
+      clientDataJSON: toBase64url(response.clientDataJSON),
+      authenticatorData: toBase64url(response.authenticatorData),
+      signature: toBase64url(response.signature),
+      userHandle: response.userHandle
+        ? toBase64url(response.userHandle)
+        : undefined,
+    },
+    clientExtensionResults: {},
+  };
+}
+
+export async function passkeyRegistration(options: any) {
+  const credential: any = await navigator.credentials.create({
+    publicKey: {
+      ...options,
+      challenge: fromBase64url(options.challenge),
+      user: { ...options.user, id: fromBase64url(options.user.id) },
+      excludeCredentials: withIds(options.excludeCredentials),
+    },
+  });
+  const response = credential.response;
+  return {
+    id: credential.id,
+    rawId: toBase64url(credential.rawId),
+    type: credential.type,
+    response: {
+      clientDataJSON: toBase64url(response.clientDataJSON),
+      attestationObject: toBase64url(response.attestationObject),
+      transports: response.getTransports ? response.getTransports() : [],
+    },
+    clientExtensionResults: {},
+  };
 }

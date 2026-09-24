@@ -1251,3 +1251,53 @@ button.quiet {
   font-size: 13.5px;
   line-height: 1.5;
 }
+
+/* v3: the passkey is the first door; the email form sits under a divider;
+   the wallet is a dated promise, not a button. */
+.primary.passkey {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+}
+
+.entry-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  font-family: var(--fidj-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fidj-text-faint);
+}
+
+.entry-divider::before,
+.entry-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--fidj-line-soft);
+}
+
+.wallet-door {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--fidj-line-strong);
+  font-size: 13px;
+  color: var(--fidj-text-faint);
+}
+
+.wallet-door .wallet-date {
+  margin-left: auto;
+  font-family: var(--fidj-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--fidj-line);
+  padding: 3px 7px;
+  white-space: nowrap;
+}
