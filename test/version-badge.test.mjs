@@ -35,3 +35,18 @@ test("an app served without a readable version shows no badge at all", () => {
     assert.equal(badge(), null, `"${unreadable}" is not a version`);
   }
 });
+
+// Fidj's own site carries a console module with its own patch; the badge says
+// which one is running, between the SDK and the API.
+test("the badge names the module it carries, then the API", async () => {
+  global.fetch = async () => ({ ok: true, json: async () => ({ version: "3.15.0" }) });
+  showVersionBadge("3.15.0", "https://api.example/v3", { name: "console", version: "3.15.3" });
+  assert.equal(badge()?.textContent, "fidj@3.15.0 · console 3.15.3");
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(badge()?.textContent, "fidj@3.15.0 · console 3.15.3 · API 3.15.0");
+});
+
+test("a module without a readable version is left out", () => {
+  showVersionBadge("3.15.0", undefined, { name: "console", version: "unknown" });
+  assert.equal(badge()?.textContent, "fidj@3.15.0");
+});

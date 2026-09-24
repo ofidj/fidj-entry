@@ -304,12 +304,28 @@ export function showEmailEntry(open: boolean, focus = false) {
   if (open && focus) document.getElementById("email")?.focus();
 }
 
-export function showVersionBadge(version: string, apiEndpoint?: string): void {
-  if (!/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version || "")) return;
+// The badge names what is running: the SDK the shell carries, the module it
+// mounts when that module has its own patch (Fidj's console), and the API.
+export function showVersionBadge(
+  version: string,
+  apiEndpoint?: string,
+  module?: { name: string; version: string },
+): void {
+  const readable = (value?: string) => /^\d+\.\d+\.\d+(-[\w.]+)?$/.test(value || "");
+  if (!readable(version)) return;
+  const parts = [`fidj@${version}`];
+  const labels = [`Fidj version ${version}`];
+  if (module && readable(module.version)) {
+    parts.push(`${module.name} ${module.version}`);
+    labels.push(`${module.name} version ${module.version}`);
+  }
   const badge = document.createElement("div");
   badge.className = "fidj-version";
-  badge.setAttribute("aria-label", `Fidj version ${version}`);
-  badge.textContent = `fidj@${version}`;
+  const show = () => {
+    badge.textContent = parts.join(" · ");
+    badge.setAttribute("aria-label", labels.join(", "));
+  };
+  show();
   document.body.append(badge);
   if (apiEndpoint) {
     void fetch(`${apiEndpoint.replace(/\/$/, "")}/status`)
@@ -317,11 +333,9 @@ export function showVersionBadge(version: string, apiEndpoint?: string): void {
       .then((status) => {
         const apiVersion = status?.version || status?.built;
         if (!apiVersion) return;
-        badge.textContent = `fidj@${version} · API ${apiVersion}`;
-        badge.setAttribute(
-          "aria-label",
-          `Fidj version ${version}, API version ${apiVersion}`,
-        );
+        parts.push(`API ${apiVersion}`);
+        labels.push(`API version ${apiVersion}`);
+        show();
       })
       .catch(() => undefined);
   }

@@ -1,6 +1,6 @@
 {
   "name": "@ofidj/entry",
-  "version": "3.15.0",
+  "version": "3.15.1",
   "description": "The Fidj entry: sign-in, account recovery, the service agreement and the design system, shared verbatim by Fidj, the generated apps and the console.",
   "license": "MIT",
   "publishConfig": {
