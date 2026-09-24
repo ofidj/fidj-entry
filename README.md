@@ -120,7 +120,8 @@ prefix.
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `model.ts`                             | the refusals and what they mean, the acceptance rule, and a model per screen: entry, agreement, verification wait, account, credentials |
 | `remembered.ts`                        | the address this browser remembers, and forgetting it                                                                                   |
-| `dom.ts`                               | the HTML renderer, password/agreement bindings, the folding form, the `fidj@<version>` badge                                             |
+| `dom.ts`                               | the HTML renderer, password/agreement bindings, the folding form, the `fidj@<version>` badge, the passkey door and the WebAuthn helpers |
+| `server.ts`                            | the Fidj window (OIDC interaction page) rendered on the server, and its only script                                                     |
 | `provider-window.ts`                   | the Fidj window and the answer it relays back                                                                                           |
 | `tokens.css`, `fonts.css`, `style.css` | the design system                                                                                                                       |
 
@@ -185,6 +186,30 @@ nothing moved.
 **`pollVerification` treats a failed check as no answer.** A browser that lost
 its connection has learned nothing about the address, so the wait continues
 rather than reporting anything.
+
+### The passkey door (3.15.0)
+
+`credentialFields(state, {passkey: true})` draws **Continue with a passkey**
+first, then "or with your email" and the password form; without the option it
+draws the form alone. Pass it only where the passkey can run: one relying party,
+Fidj's own domain, so on Fidj's shell and on the Fidj window, never on another
+app's own form. `walletDoor()` draws the EU wallet as a dated, disabled promise.
+
+```ts
+import {
+  passkeySupported, // can this browser run a ceremony at all
+  passkeyAssertion, // sign-in: API options in, JSON answer out
+  passkeyRegistration, // adding one: creation options in, JSON answer out
+} from "@ofidj/entry/dom";
+```
+
+They carry WebAuthn's ArrayBuffers to the API's base64url JSON and back; the
+HTTP side is the SDK's (`passkeyLoginOptions`, `loginWithPasskey`). On the
+server page, `oidcInteractionPage({..., passkey: {ticket, options}})` carries the
+challenge in the page — its policy allows no request — and the page's script
+posts the answer as a form with `action=passkey`. That script is a string in a
+template literal, where a lone backslash disappears; a test parses it, because a
+script that does not parse takes every binding on the page down with it.
 
 ### What went with the old arrangement
 
