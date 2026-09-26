@@ -156,3 +156,54 @@ test("the wallet door is drawn disabled, with its date", () => {
   assert.match(markup, /aria-disabled="true"/);
   assert.doesNotMatch(markup, /<button/);
 });
+
+// The member card every generated app draws on its account screen — the shell
+// and the Studio Notes starter alike — so there is one reading of "your
+// membership", the same as Fidj's GDPR card.
+test("the member card: agreement, switches, history, export and the way out", async () => {
+  const { memberCard } = await import("../dist/dom.js");
+  const accepted = memberCard({
+    consent: { terms: true, termsVersion: "v2", analytics: true },
+    history: [
+      { type: "analytics", granted: true, changedAt: "2026-09-24T12:00:00Z" },
+    ],
+    agreementHref: "https://api.example/v3/apps/a/agreements/v2",
+    manageHref: "https://fidj.example/#/my/gdpr",
+  });
+  assert.match(
+    accepted,
+    /class="basis"[^>]*href="https:\/\/api\.example\/v3\/apps\/a\/agreements\/v2"/,
+  );
+  assert.match(accepted, /Contract · agreement v2/);
+  assert.match(
+    accepted,
+    /role="switch"[^>]*data-purpose="analytics"[^>]*checked/,
+  );
+  assert.match(accepted, /class="switch-state"[^>]*>On</);
+  assert.match(
+    accepted,
+    /<details class="member-history"><summary>History<\/summary>/,
+  );
+  assert.match(accepted, /24 Sep 2026/);
+  assert.match(accepted, /id="export">Export</);
+  assert.match(accepted, /id="leave" class="danger">Leave &amp; erase</);
+  assert.match(accepted, /href="https:\/\/fidj\.example\/#\/my\/gdpr"/);
+
+  const owed = memberCard({ consent: {}, history: [] });
+  assert.match(owed, /id="accept-terms"/);
+  const owner = memberCard({
+    consent: { terms: true },
+    history: [],
+    owner: true,
+  });
+  assert.doesNotMatch(owner, /id="leave"/);
+  const leaving = memberCard({
+    consent: { terms: true },
+    history: [],
+    leaving: true,
+  });
+  assert.match(leaving, /id="confirm-leave"/);
+  // Leaving erases: the confirmation is announced as one.
+  assert.match(leaving, /role="alertdialog"[^>]*aria-labelledby="leave-title"/);
+  assert.match(leaving, /id="cancel-leave"/);
+});

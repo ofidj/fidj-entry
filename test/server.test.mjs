@@ -164,3 +164,25 @@ test("the interaction screen wears Fidj's tokens", () => {
   assert.match(css, /Instrument Serif/);
   assert.doesNotMatch(css, /border-radius:(1[0-9]|20)px/);
 });
+
+// A recognised person whose agreement is on file at this version is asked only
+// which account: the version is stated, with its link, and nothing to tick.
+test("the consent screen does not re-ask an agreement already on file", () => {
+  const html = serverEntry.oidcInteractionMarkup({
+    mode: "consent",
+    appTitle: "Studio Notes",
+    action: "/oidc/interaction/abc",
+    csrf: "t",
+    scopes: [],
+    agreement: { version: "v1", text: "Terms" },
+    agreementHref: "/v3/apps/studio/agreements/v1",
+    recognisedEmail: "mat@example.com",
+    agreementAccepted: true,
+  });
+  assert.doesNotMatch(html, /name="terms"/);
+  assert.match(html, /accepted[^<]*<a[^>]+agreements\/v1/i);
+  assert.match(
+    html,
+    /<button name="action" value="continue">Allow and continue/,
+  );
+});

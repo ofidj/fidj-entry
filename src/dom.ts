@@ -15,6 +15,8 @@ import {
   agreementModel,
   credentialsModel,
   emailDividerLabel,
+  formatDate,
+  optionalPurposes,
   passkeyDoorModel,
   providerEntryModel,
   returnNoticeModel,
@@ -454,4 +456,56 @@ export async function passkeyRegistration(options: any) {
     },
     clientExtensionResults: {},
   };
+}
+
+// The member card every generated app draws on its account screen, the shell
+// and the Studio Notes starter alike: the agreement with its ground (a link to
+// the version accepted), each optional choice as a switch that says On or Off,
+// then History, Export and the way out — the same reading as Fidj's GDPR card.
+export function memberCard(options: {
+  consent: Record<string, unknown>;
+  history: Array<{ type: string; granted: boolean; changedAt: string }>;
+  agreementHref?: string;
+  owner?: boolean;
+  leaving?: boolean;
+  leaveScope?: string;
+  manageHref?: string;
+}) {
+  const { consent, history } = options;
+  const version = String(consent.termsVersion || "");
+  const agreementRow = consent.terms
+    ? `<div class="member-row"><div><strong>Service agreement</strong>${
+        options.agreementHref && version
+          ? `<a class="basis" href="${escape(options.agreementHref)}" target="_blank" rel="noopener noreferrer">Contract · agreement ${escape(version)} ↗</a>`
+          : '<span class="basis">Contract</span>'
+      }</div><small class="nosw">Part of the service. To stop it, leave the app.</small></div>`
+    : '<div class="member-row"><div><strong>Service agreement</strong><small>Not accepted yet — accept it or leave the app.</small></div><button id="accept-terms" class="primary">Accept</button></div>';
+  const choices = optionalPurposes
+    .map(
+      (purpose) =>
+        `<label class="member-row" for="purpose-${purpose.key}"><div><strong>${escape(purpose.title)}</strong><small>${escape(purpose.description)}</small><span class="basis consent">Consent</span></div><span class="switch"><input type="checkbox" role="switch" id="purpose-${purpose.key}" data-purpose="${purpose.key}"${consent[purpose.key] ? " checked" : ""}><span class="switch-state" aria-hidden="true">${consent[purpose.key] ? "On" : "Off"}</span></span></label>`,
+    )
+    .join("");
+  const entries = history.length
+    ? history
+        .slice()
+        .reverse()
+        .map(
+          (entry) =>
+            `<p>${escape(formatDate(entry.changedAt, "datetime"))} · ${escape(entry.type)} ${entry.granted ? "given" : "withdrawn"}</p>`,
+        )
+        .join("")
+    : "<p>No changes yet.</p>";
+  const leave = options.owner
+    ? "<small>You own this app: hand it over or delete it on Fidj before leaving.</small>"
+    : options.leaving
+      ? `<div role="alertdialog" aria-labelledby="leave-title"><p id="leave-title">${escape(options.leaveScope || "Your membership and what this app holds for you will be erased. Your other apps remain available.")}</p><button id="confirm-leave" class="danger">Leave &amp; erase</button><button id="cancel-leave">Keep my membership</button></div>`
+      : '<button id="leave" class="danger">Leave &amp; erase</button>';
+  return `<h2>Your membership</h2><div class="member-rows">${agreementRow}${choices}</div>
+  <details class="member-history"><summary>History</summary>${entries}</details>
+  <div class="member-actions"><button id="export">Export</button>${leave}</div>${
+    options.manageHref
+      ? `<p class="leaving"><a href="${escape(options.manageHref)}" target="_blank" rel="noopener noreferrer">Open Fidj to manage every app you use ↗</a></p>`
+      : ""
+  }`;
 }

@@ -31,6 +31,9 @@ export type OidcInteractionPage = {
   // Where the Fidj mark is served from: the provider serves its own, a front
   // end drawing the same screen serves it beside its bundle.
   logoSrc?: string;
+  // The recognised person already accepted this app's agreement at the version
+  // in force.
+  agreementAccepted?: boolean;
 };
 
 export const oidcInteractionScript = `(() => {
@@ -142,11 +145,18 @@ const consentFields = (page: OidcInteractionPage) => {
   const identity = page.recognisedEmail
     ? `<div class="account-picker"><span class="account-avatar" aria-hidden="true">${escape(initial)}</span><span class="account-copy"><small>Signed in with Fidj</small><strong class="account-email">${escape(page.recognisedEmail)}</strong></span><span class="account-check" aria-hidden="true">✓</span></div>`
     : "";
-  const agreementChoice =
-    page.agreement && page.agreementHref
+  // Already on file at this version: stated, with its link, and nothing to
+  // tick — the screen then asks only which account.
+  const onFile =
+    page.agreementAccepted && page.agreement
+      ? `<p class="fineprint">You accepted the ${page.agreementHref ? `<a class="agreement-document" href="${escape(page.agreementHref)}" target="_blank" rel="noopener noreferrer">service agreement · version ${escape(page.agreement.version)} ↗</a>` : `service agreement · version ${escape(page.agreement.version)}`}.</p>`
+      : "";
+  const agreementChoice = onFile
+    ? onFile
+    : page.agreement && page.agreementHref
       ? `<label class="agreement-choice"><input type="checkbox" name="terms" value="true" required> <span>I accept the <a class="agreement-document" href="${escape(page.agreementHref)}" target="_blank" rel="noopener noreferrer">service agreement · version ${escape(page.agreement.version)} ↗</a></span></label>`
       : `<label class="agreement-choice"><input type="checkbox" name="terms" value="true" required> ${escape(agreement.checkboxLabel)}</label>`;
-  return `${identity}<p class="permission-title">${escape(page.appTitle)} will receive:</p><ul class="permission-list">${(page.scopes || []).map((scope) => `<li>${escape(scope)}</li>`).join("")}</ul>${agreementChoice}<button name="action" value="continue" disabled>Allow and continue</button><button class="secondary account-switch" name="action" value="switch" formnovalidate>Use another account</button><button class="cancel" name="action" value="cancel" formnovalidate>Cancel</button>`;
+  return `${identity}<p class="permission-title">${escape(page.appTitle)} will receive:</p><ul class="permission-list">${(page.scopes || []).map((scope) => `<li>${escape(scope)}</li>`).join("")}</ul>${agreementChoice}<button name="action" value="continue"${onFile ? "" : " disabled"}>Allow and continue</button><button class="secondary account-switch" name="action" value="switch" formnovalidate>Use another account</button><button class="cancel" name="action" value="cancel" formnovalidate>Cancel</button>`;
 };
 
 function interactionCopy(page: OidcInteractionPage) {
