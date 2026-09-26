@@ -10,6 +10,9 @@ import {
 import {
   agreementScreen,
   acceptedAgreement,
+  bindAgreementScreen,
+  bindOidcInteraction,
+  oidcInteractionMarkup,
   providerEntry,
 } from "../dist/dom.js";
 
@@ -137,4 +140,40 @@ test("a browser that refuses storage still renders an entry", () => {
   assert.equal(signInHint("app-1"), "");
   assert.doesNotThrow(() => rememberSignIn("app-1", "someone@example.com"));
   assert.doesNotThrow(() => forgetSignIn("app-1"));
+});
+
+test("the agreement opens in the browser, never in a window of its own", () => {
+  const element = form(false, "v2");
+  const link = element.querySelector(".agreement-document");
+  assert.equal(link.getAttribute("target"), "_blank");
+  assert.equal(link.getAttribute("rel"), "noopener noreferrer");
+  let opened = false;
+  window.open = () => {
+    opened = true;
+    return null;
+  };
+  bindAgreementScreen(element);
+  link.dispatchEvent(
+    new window.MouseEvent("click", { bubbles: true, cancelable: true }),
+  );
+  assert.equal(opened, false);
+});
+
+test("the shared interaction screen is bound in the page: reveal and the tick", () => {
+  document.body.innerHTML = oidcInteractionMarkup({
+    mode: "consent",
+    appTitle: "Studio Notes",
+    action: "/oidc/interaction/abc",
+    csrf: "t",
+    scopes: [],
+    agreement: { version: "v1", text: "Terms" },
+    agreementHref: "/v3/apps/studio/agreements/v1",
+  });
+  bindOidcInteraction(document);
+  const submit = document.querySelector('button[value="continue"]');
+  const box = document.querySelector('input[name="terms"]');
+  assert.equal(submit.disabled, true);
+  box.checked = true;
+  box.dispatchEvent(new window.Event("change"));
+  assert.equal(submit.disabled, false);
 });

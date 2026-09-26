@@ -212,7 +212,7 @@ export function agreementScreen(
   href: string,
 ) {
   const model = agreementModel(title, agreement);
-  return `<label class="agreement-choice"><input id="service-agreement" type="checkbox" required aria-required="true" data-version="${escape(model.version)}"><span>I accept the <a class="agreement-document" href="${escape(href)}" target="fidj-agreement" rel="noopener">service agreement · ${escape(model.versionLabel)} ↗</a></span></label>
+  return `<label class="agreement-choice"><input id="service-agreement" type="checkbox" required aria-required="true" data-version="${escape(model.version)}"><span>I accept the <a class="agreement-document" href="${escape(href)}" target="_blank" rel="noopener noreferrer">service agreement · ${escape(model.versionLabel)} ↗</a></span></label>
   <button class="primary" type="submit"${model.submitDisabled ? " disabled" : ""}>${escape(model.submitLabel)}</button>`;
 }
 
@@ -262,17 +262,27 @@ export function bindAgreementScreen(form: HTMLFormElement | null) {
       element.disabled = !checkbox.checked;
     });
   checkbox.addEventListener("change", update);
-  const agreementLink = form.querySelector<HTMLAnchorElement>(
-    ".agreement-document",
+  update();
+}
+
+// The provider's screen, drawn by a front end in the window an app opened. The
+// markup and its scoped styles are the provider's own, so both answer with the
+// same screen; this is what the provider's page script does, minus the passkey
+// ceremony, which only the provider can challenge.
+export { oidcInteractionMarkup, oidcInteractionStyles } from "./server.js";
+export type { OidcInteractionPage } from "./server.js";
+
+export function bindOidcInteraction(root: ParentNode) {
+  bindPasswordReveal(root);
+  const checkbox = root.querySelector<HTMLInputElement>('input[name="terms"]');
+  const submit = root.querySelector<HTMLButtonElement>(
+    'button[value="continue"]',
   );
-  agreementLink?.addEventListener("click", (event) => {
-    event.preventDefault();
-    window.open(
-      agreementLink.href,
-      "fidj-agreement",
-      "popup,width=640,height=720,left=40,top=40,noopener",
-    );
-  });
+  if (!checkbox || !submit) return;
+  const update = () => {
+    submit.disabled = !checkbox.checked;
+  };
+  checkbox.addEventListener("change", update);
   update();
 }
 
@@ -311,7 +321,8 @@ export function showVersionBadge(
   apiEndpoint?: string,
   module?: { name: string; version: string },
 ): void {
-  const readable = (value?: string) => /^\d+\.\d+\.\d+(-[\w.]+)?$/.test(value || "");
+  const readable = (value?: string) =>
+    /^\d+\.\d+\.\d+(-[\w.]+)?$/.test(value || "");
   if (!readable(version)) return;
   const parts = [`fidj@${version}`];
   const labels = [`Fidj version ${version}`];

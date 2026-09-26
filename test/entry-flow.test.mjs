@@ -209,7 +209,7 @@ test("screen three leads directly with the agreement checkbox", () => {
     markup,
     /href="https:\/\/api\.example\/v3\/apps\/app\/agreements\/2026-09-11"/,
   );
-  assert.match(markup, /target="fidj-agreement"/);
+  assert.match(markup, /target="_blank" rel="noopener noreferrer"/);
   assert.match(markup, /id="service-agreement"[^>]*required/);
   assert.doesNotMatch(
     markup,
