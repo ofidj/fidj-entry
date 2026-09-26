@@ -15,7 +15,7 @@ import {
   agreementModel,
   credentialsModel,
   emailDividerLabel,
-  formatDate,
+  historyLine,
   optionalPurposes,
   passkeyDoorModel,
   providerEntryModel,
@@ -25,6 +25,7 @@ import {
   walletDoorModel,
   type AccountState,
   type EntryControl,
+  type HistoryEntry,
   type SigninShape,
   type VerificationState,
 } from "./index.js";
@@ -99,7 +100,7 @@ export function credentialFields(
     passkey +
     `<label for="email">${escape(model.email.label)}</label><input id="email" type="email" value="${escape(model.email.value)}" placeholder="${escape(model.email.placeholder)}" autocomplete="username">` +
     `<div class="field-head"><label for="password">${escape(model.password.label)}</label><a href="${escape(model.forgot.href)}">${escape(model.forgot.label)}</a></div>` +
-    `<div class="password-field"><input id="password" type="password" value="${escape(model.password.value)}" placeholder="${escape(model.password.placeholder)}" autocomplete="current-password"><button type="button" id="reveal" aria-controls="password">${escape(model.reveal.label)}</button></div>` +
+    `<div class="password-field"><input id="password" type="password" value="${escape(model.password.value)}" ${attribute("placeholder", model.password.placeholder)} autocomplete="current-password"><button type="button" id="reveal" aria-controls="password">${escape(model.reveal.label)}</button></div>` +
     `<button class="primary" type="submit" name="entry" value="credentials">${escape(model.submit.label)}</button>` +
     `<button class="secondary" type="submit" name="signup" value="true">${escape(model.signup.label)}</button>`
   );
@@ -464,7 +465,7 @@ export async function passkeyRegistration(options: any) {
 // then History, Export and the way out — the same reading as Fidj's GDPR card.
 export function memberCard(options: {
   consent: Record<string, unknown>;
-  history: Array<{ type: string; granted: boolean; changedAt: string }>;
+  history: HistoryEntry[];
   agreementHref?: string;
   owner?: boolean;
   leaving?: boolean;
@@ -490,10 +491,10 @@ export function memberCard(options: {
     ? history
         .slice()
         .reverse()
-        .map(
-          (entry) =>
-            `<p>${escape(formatDate(entry.changedAt, "datetime"))} · ${escape(entry.type)} ${entry.granted ? "given" : "withdrawn"}</p>`,
-        )
+        .map((entry) => {
+          const line = historyLine(entry);
+          return `<p><time>${escape(line.when)}</time> · ${escape(line.what)}</p>`;
+        })
         .join("")
     : "<p>No changes yet.</p>";
   const leave = options.owner
@@ -501,11 +502,24 @@ export function memberCard(options: {
     : options.leaving
       ? `<div role="alertdialog" aria-labelledby="leave-title"><p id="leave-title">${escape(options.leaveScope || "Your membership and what this app holds for you will be erased. Your other apps remain available.")}</p><button id="confirm-leave" class="danger">Leave &amp; erase</button><button id="cancel-leave">Keep my membership</button></div>`
       : '<button id="leave" class="danger">Leave &amp; erase</button>';
+  // History is a button beside Export, as on Fidj's console, rather than a
+  // native disclosure triangle; `bindMemberHistory` opens and closes it.
   return `<h2>Your membership</h2><div class="member-rows">${agreementRow}${choices}</div>
-  <details class="member-history"><summary>History</summary>${entries}</details>
-  <div class="member-actions"><button id="export">Export</button>${leave}</div>${
+  <div id="member-history" class="member-history" hidden>${entries}</div>
+  <div class="member-actions"><button type="button" id="history-toggle" aria-expanded="false" aria-controls="member-history">History</button><button id="export">Export</button>${leave}</div>${
     options.manageHref
       ? `<p class="leaving"><a href="${escape(options.manageHref)}" target="_blank" rel="noopener noreferrer">Open Fidj to manage every app you use ↗</a></p>`
       : ""
   }`;
+}
+
+// Opens and closes the member card's history. A card drawn again starts closed.
+export function bindMemberHistory(root: ParentNode) {
+  const toggle = root.querySelector<HTMLButtonElement>("#history-toggle");
+  const list = root.querySelector<HTMLElement>("#member-history");
+  if (!toggle || !list) return;
+  toggle.onclick = () => {
+    list.hidden = !list.hidden;
+    toggle.setAttribute("aria-expanded", String(!list.hidden));
+  };
 }

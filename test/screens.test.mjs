@@ -180,11 +180,17 @@ test("the member card: agreement, switches, history, export and the way out", as
     /role="switch"[^>]*data-purpose="analytics"[^>]*checked/,
   );
   assert.match(accepted, /class="switch-state"[^>]*>On</);
+  // History is a toggle like the console's, not a native disclosure triangle,
+  // and it reads with the switch's own title.
+  assert.doesNotMatch(accepted, /<details/);
   assert.match(
     accepted,
-    /<details class="member-history"><summary>History<\/summary>/,
+    /<button type="button" id="history-toggle" aria-expanded="false" aria-controls="member-history">History<\/button>/,
   );
-  assert.match(accepted, /24 Sep 2026/);
+  assert.match(accepted, /id="member-history" class="member-history" hidden/);
+  assert.match(accepted, /24 Sep 2026, \d\d:\d\d/);
+  assert.match(accepted, /Analytics — turned on/);
+  assert.doesNotMatch(accepted, /analytics given/);
   assert.match(accepted, /id="export">Export</);
   assert.match(accepted, /id="leave" class="danger">Leave &amp; erase</);
   assert.match(accepted, /href="https:\/\/fidj\.example\/#\/my\/gdpr"/);
@@ -206,4 +212,32 @@ test("the member card: agreement, switches, history, export and the way out", as
   // Leaving erases: the confirmation is announced as one.
   assert.match(leaving, /role="alertdialog"[^>]*aria-labelledby="leave-title"/);
   assert.match(leaving, /id="cancel-leave"/);
+});
+
+// The History button opens and closes the list it controls, and says which.
+test("the member card's History button toggles the list", async () => {
+  const { JSDOM } = await import("jsdom");
+  const { memberCard, bindMemberHistory } = await import("../dist/dom.js");
+  const dom = new JSDOM(
+    `<div id="root">${memberCard({ consent: { terms: true }, history: [] })}</div>`,
+  );
+  const root = dom.window.document.getElementById("root");
+  bindMemberHistory(root);
+  const toggle = root.querySelector("#history-toggle");
+  const list = root.querySelector("#member-history");
+  assert.equal(list.hidden, true);
+  toggle.click();
+  assert.equal(list.hidden, false);
+  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+  toggle.click();
+  assert.equal(list.hidden, true);
+  assert.equal(toggle.getAttribute("aria-expanded"), "false");
+});
+
+// A row of dots is not a hint: it only restates that the field is masked.
+test("the password field carries no placeholder of dots", () => {
+  const markup = credentialFields({ email: "", password: "" });
+  const field = markup.match(/<input id="password"[^>]*>/)[0];
+  assert.doesNotMatch(field, /•/);
+  assert.doesNotMatch(field, /placeholder=""/);
 });

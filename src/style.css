@@ -760,7 +760,10 @@ body.has-module {
     gap: 32px;
     padding: 36px 24px 32px;
   }
+  /* On a phone the form is what somebody came for; the app's hero follows it
+   * rather than filling the first screen. */
   .signin-form {
+    order: -1;
     padding: 36px 24px 32px;
   }
   .signin-description {
@@ -780,8 +783,9 @@ body.has-module {
 .public-content h1 {
   font-size: clamp(2rem, 5vw, 3.5rem);
 }
+/* As wide as the app's content: the profile is a page of the app, not a
+ * narrower card floating in it. */
 .content-account {
-  max-width: 680px;
   margin: 2rem auto;
 }
 .profile-summary {
@@ -1110,21 +1114,19 @@ button.quiet {
 
 /* The Fidj door.
  *
- * The accent is the Fidj mark, and this is the one control on an app's entry
- * that belongs to Fidj rather than to the app. It is also the door the app
- * would rather people took — the one where the password is never typed here —
- * and those two reasons happen to want the same paint. Nothing else on the
- * screen wears it, which is what makes it read as the way in rather than as one
- * option among several. */
+ * It is the entry's primary, and Fidj's primary is ink — on the console and
+ * in every app. It used to wear the accent, which made "Continue as …" the one
+ * red button in a product whose every other way forward is ink. Being first
+ * and full width is what makes it the way in. */
 .primary.fidj-entry {
-  background: var(--fidj-accent);
-  border-color: var(--fidj-accent);
-  color: var(--fidj-on-accent);
+  background: var(--fidj-ink);
+  border-color: var(--fidj-ink);
+  color: var(--fidj-paper);
   margin-top: 0;
 }
 .primary.fidj-entry:hover:not(:disabled) {
-  background: var(--fidj-accent-strong);
-  border-color: var(--fidj-accent-strong);
+  background: var(--fidj-ink-raised);
+  border-color: var(--fidj-ink-raised);
 }
 /* While the Fidj window is open, the door is no longer the way in — it is the
  * way back to the window doing the work. So it reads as a state rather than an
@@ -1412,11 +1414,6 @@ input[role="switch"]:focus-visible {
   margin: 0 0 16px;
   font-size: 13px;
   color: var(--fidj-text-muted);
-}
-.member-history summary {
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--fidj-text);
 }
 .member-history p {
   margin: 6px 0;

@@ -512,7 +512,8 @@ export function credentialsModel(state: {
       type: "password",
       autocomplete: "current-password",
       value: state.password,
-      placeholder: "••••••••••",
+      // No row of dots: it only restates that the field is masked.
+      placeholder: "",
     },
     forgot: { href: "#/forgot", label: "Forgot?" },
     reveal: { id: "reveal", kind: "quiet", label: "Show" },
@@ -634,3 +635,37 @@ export const optionalPurposes: ReadonlyArray<{
     description: "Allow additional data beyond the essential service.",
   },
 ];
+
+export type HistoryEntry = {
+  type: string;
+  granted: boolean;
+  changedAt?: string | Date;
+  source?: string;
+  cguVersion?: string;
+};
+
+// One line of a consent history, the same on Fidj's console and in every
+// generated app. A choice is named by the title its switch carries, so the
+// person reads back what they pressed. The source (profile, signup…) is an
+// internal id of the screen that wrote the record: it tells a reader nothing
+// they can act on, so it is not shown.
+export function historyLine(entry: HistoryEntry): {
+  when: string;
+  what: string;
+} {
+  const when = formatDate(entry.changedAt, "datetime");
+  if (entry.type === "terms")
+    return {
+      when,
+      what: entry.granted
+        ? `Service agreement accepted${entry.cguVersion ? ` · version ${entry.cguVersion}` : ""}`
+        : "Service agreement withdrawn",
+    };
+  const title =
+    optionalPurposes.find((purpose) => purpose.key === entry.type)?.title ??
+    entry.type.charAt(0).toUpperCase() + entry.type.slice(1);
+  return {
+    when,
+    what: `${title} — ${entry.granted ? "turned on" : "turned off"}`,
+  };
+}

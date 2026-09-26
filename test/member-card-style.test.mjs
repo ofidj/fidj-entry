@@ -42,3 +42,30 @@ test("a button in a member row keeps its own width", () => {
     /\.member-row > button\s*\{[^}]*flex:\s*none[^}]*width:\s*auto/,
   );
 });
+
+// The profile is a page of the app, as wide as its content, and the member
+// card is not framed a second time inside it.
+test("the profile column takes the content width", () => {
+  const rule = style.match(/\.content-account\s*\{([^}]*)\}/);
+  assert.ok(rule, "no .content-account rule");
+  assert.doesNotMatch(rule[1], /max-width:\s*680px/);
+});
+
+// Fidj's primary is ink. The door is the primary of the entry, so it wears
+// ink like every other primary rather than the accent.
+test("the Fidj door is an ink primary", () => {
+  const rule = style.match(/\.primary\.fidj-entry\s*\{([^}]*)\}/);
+  assert.ok(rule, "no .primary.fidj-entry rule");
+  assert.doesNotMatch(rule[1], /--fidj-accent/);
+  const hover = style.match(
+    /\.primary\.fidj-entry:hover:not\(:disabled\)\s*\{([^}]*)\}/,
+  );
+  assert.doesNotMatch(hover[1], /--fidj-accent/);
+});
+
+// On a phone the form is what somebody came for: it comes before the hero.
+test("the sign-in form comes first on a narrow screen", () => {
+  const narrow = style.match(/@media \(max-width: 860px\)\s*\{([\s\S]*?)\n\}/);
+  assert.ok(narrow, "no 860px block");
+  assert.match(narrow[1], /\.signin-form\s*\{[^}]*order:\s*-1/);
+});

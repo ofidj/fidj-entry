@@ -29,6 +29,8 @@ export {
   pollVerification,
   formatDate,
   optionalPurposes,
+  historyLine,
+  type HistoryEntry,
   type SigninShape,
   type EntryControl,
   type ProviderEntryModel,
