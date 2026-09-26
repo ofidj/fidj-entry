@@ -177,3 +177,45 @@ test("the shared interaction screen is bound in the page: reveal and the tick", 
   box.dispatchEvent(new window.Event("change"));
   assert.equal(submit.disabled, false);
 });
+
+test("the shared interaction screen runs the passkey ceremony and posts its answer", async () => {
+  document.body.innerHTML = oidcInteractionMarkup({
+    mode: "login",
+    appTitle: "Studio Notes",
+    action: "/oidc/interaction/abc",
+    csrf: "t",
+    passkey: { ticket: "ticket-1", options: { challenge: "AAAA" } },
+  });
+  const form = document.getElementById("interaction");
+  let submitted = null;
+  form.submit = () => {
+    submitted = new window.FormData(form);
+  };
+  const buffer = new Uint8Array([1, 2, 3]).buffer;
+  global.window.PublicKeyCredential = function () {};
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    value: {
+      credentials: {
+        get: async () => ({
+          id: "cred-1",
+          rawId: buffer,
+          type: "public-key",
+          response: {
+            clientDataJSON: buffer,
+            authenticatorData: buffer,
+            signature: buffer,
+            userHandle: null,
+          },
+        }),
+      },
+    },
+  });
+  bindOidcInteraction(document);
+  document.querySelector('button[value="passkey"]').click();
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.ok(submitted, "the form was not posted");
+  assert.equal(submitted.get("action"), "passkey");
+  assert.equal(submitted.get("passkeyTicket"), "ticket-1");
+  assert.equal(JSON.parse(submitted.get("passkey")).id, "cred-1");
+});

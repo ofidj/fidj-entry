@@ -1301,3 +1301,123 @@ button.quiet {
   padding: 3px 7px;
   white-space: nowrap;
 }
+
+/* The member card a generated app draws on its account screen: the same
+ * reading as Fidj's GDPR card — the agreement with its ground, each optional
+ * choice as a switch, then history, export and the way out. */
+.member-rows {
+  border: 1px solid var(--fidj-line);
+  border-radius: var(--fidj-radius);
+  background: var(--fidj-surface);
+  margin: 12px 0 16px;
+}
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  margin: 0;
+  border-bottom: 1px solid var(--fidj-line-soft);
+  font-family: var(--fidj-font-sans);
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fidj-text);
+}
+.member-row:last-child {
+  border-bottom: 0;
+}
+.member-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.member-row small {
+  color: var(--fidj-text-faint);
+  font-size: 12.5px;
+}
+.member-row .nosw {
+  max-width: 190px;
+  text-align: right;
+}
+.basis {
+  align-self: flex-start;
+  font-family: var(--fidj-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: 1px solid var(--fidj-line);
+  color: var(--fidj-text-faint);
+  text-decoration: none;
+}
+.basis.consent {
+  color: var(--fidj-ok);
+  border-color: var(--fidj-ok);
+}
+.switch {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 9px;
+}
+.switch-state {
+  min-width: 24px;
+  font-size: 13px;
+  font-weight: 500;
+}
+input[role="switch"] {
+  appearance: none;
+  position: relative;
+  width: 40px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: var(--fidj-line-strong);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+input[role="switch"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fidj-surface);
+  transition: left 0.15s;
+}
+input[role="switch"]:checked {
+  background: var(--fidj-ok);
+}
+input[role="switch"]:checked::after {
+  left: 21px;
+}
+input[role="switch"]:focus-visible {
+  outline: 2px solid var(--fidj-ink);
+  outline-offset: 2px;
+}
+.member-history {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--fidj-text-muted);
+}
+.member-history summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--fidj-text);
+}
+.member-history p {
+  margin: 6px 0;
+}
+.member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}

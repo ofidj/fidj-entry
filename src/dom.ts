@@ -274,6 +274,37 @@ export type { OidcInteractionPage } from "./server.js";
 
 export function bindOidcInteraction(root: ParentNode) {
   bindPasswordReveal(root);
+  // The passkey door: the challenge came with the screen, the authenticator's
+  // answer leaves with the form, as on the provider's own page.
+  const door = root.querySelector<HTMLButtonElement>(
+    'button[value="passkey"][data-passkey-options]',
+  );
+  if (door && !passkeySupported()) door.hidden = true;
+  door?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const form = door.form;
+    if (!form) return;
+    try {
+      const answer = await passkeyAssertion(
+        JSON.parse(door.dataset.passkeyOptions || "{}"),
+      );
+      const field = form.querySelector<HTMLInputElement>(
+        'input[name="passkey"]',
+      );
+      if (field) field.value = JSON.stringify(answer);
+      const action = document.createElement("input");
+      action.type = "hidden";
+      action.name = "action";
+      action.value = "passkey";
+      form.append(action);
+      form
+        .querySelectorAll("[required]")
+        .forEach((element) => element.removeAttribute("required"));
+      form.submit();
+    } catch {
+      // Cancelled or refused by the device: the email form is still there.
+    }
+  });
   const checkbox = root.querySelector<HTMLInputElement>('input[name="terms"]');
   const submit = root.querySelector<HTMLButtonElement>(
     'button[value="continue"]',

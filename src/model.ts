@@ -231,7 +231,11 @@ export function providerEntryModel(options: {
     // Fidj is the only door: it collects the agreement itself, a moment later,
     // on the screen that names the app — and records it with its version.
     disclosure: both
-      ? { label: "Inline form", controls: "email-entry", expanded: false }
+      ? {
+          label: "Or with your email",
+          controls: "email-entry",
+          expanded: false,
+        }
       : null,
   };
 }
@@ -574,3 +578,59 @@ export function pollVerification(options: {
   timer = setTimeout(ask, interval);
   return stop;
 }
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+// One way to write a date, on Fidj and in every generated app. The month is
+// spelled out so nobody has to guess whether 09/10 is September or October,
+// and the time is shown only where it matters (a session, a refusal).
+export function formatDate(
+  value: string | number | Date | null | undefined,
+  mode: "date" | "datetime" = "date",
+): string {
+  if (value === null || value === undefined || value === "") return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const day = `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  if (mode === "date") return day;
+  const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  return `${day}, ${time}`;
+}
+
+// The optional choices every app offers until apps declare their own purposes,
+// named once for Fidj's console and every generated app. Each is a consent: off
+// unless the person turns it on, and withdrawable at any time.
+export const optionalPurposes: ReadonlyArray<{
+  key: "analytics" | "communications" | "optionalData";
+  title: string;
+  description: string;
+}> = [
+  {
+    key: "analytics",
+    title: "Analytics",
+    description: "Help this app understand how its features are used.",
+  },
+  {
+    key: "communications",
+    title: "Communications",
+    description: "Receive optional news and updates from this app.",
+  },
+  {
+    key: "optionalData",
+    title: "Optional data",
+    description: "Allow additional data beyond the essential service.",
+  },
+];

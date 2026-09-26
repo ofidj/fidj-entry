@@ -257,3 +257,44 @@ test("the entry's shape decides which doors exist, without rendering one", () =>
     "Sign in",
   );
 });
+
+// One way to write a date, on Fidj and in every generated app: the console
+// mixed "Sep 26, 2026, 1:41:50 PM", "24/09/2026", "9/25/26" and raw ISO
+// strings. Month names are spelled out so no reader has to guess the order.
+test("dates read the same everywhere", async () => {
+  const { formatDate } = await import("../dist/index.js");
+  const at = new Date(2026, 8, 24, 13, 5);
+  assert.equal(formatDate(at), "24 Sep 2026");
+  assert.equal(formatDate(at, "datetime"), "24 Sep 2026, 13:05");
+  assert.equal(formatDate(at.toISOString()), "24 Sep 2026");
+  assert.equal(formatDate(undefined), "");
+  assert.equal(formatDate("not a date"), "");
+});
+
+// The optional choices every app offers today, named once. The console said
+// "Optional data" on GDPR and "Optional profile data" on the public page, and
+// generated apps had their own sentences.
+test("the optional choices are named once", async () => {
+  const { optionalPurposes } = await import("../dist/index.js");
+  assert.deepEqual(
+    optionalPurposes.map((purpose) => purpose.key),
+    ["analytics", "communications", "optionalData"],
+  );
+  for (const purpose of optionalPurposes) {
+    assert.ok(purpose.title && purpose.description, purpose.key);
+  }
+});
+
+// The app's own form, folded under the Fidj door, is offered in the mockup's
+// words: "Inline form" named how it is built, not what it is for.
+test("the folded form is offered as signing in with an email", async () => {
+  const { providerEntryModel } = await import("../dist/index.js");
+  const model = providerEntryModel({
+    title: "Mat Cloud App",
+    hint: "",
+    isFidjItself: false,
+    shape: "both",
+    hasCredentials: true,
+  });
+  assert.equal(model.disclosure.label, "Or with your email");
+});

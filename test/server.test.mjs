@@ -152,3 +152,15 @@ test("the interaction markup is shared, script-free and scoped", () => {
       assert.match(part.trim(), /^\.oidc-page\b/, `unscoped: ${part}`);
   }
 });
+
+// The window an app opens is Fidj's: paper and ink, the display serif, flat
+// 2px corners — not the old provider page's green. The values are the tokens',
+// written out because the provider's page cannot load a stylesheet.
+test("the interaction screen wears Fidj's tokens", () => {
+  const css = serverEntry.oidcInteractionStyles;
+  assert.doesNotMatch(css, /#173e36|#153e37|#b9ccc0|#f3f6f1|#3f5c52/i);
+  assert.match(css, /#14110f/i);
+  assert.match(css, /#fbfaf8|#ffffff/i);
+  assert.match(css, /Instrument Serif/);
+  assert.doesNotMatch(css, /border-radius:(1[0-9]|20)px/);
+});

@@ -27,6 +27,8 @@ export {
   walletDoorModel,
   returnNoticeModel,
   pollVerification,
+  formatDate,
+  optionalPurposes,
   type SigninShape,
   type EntryControl,
   type ProviderEntryModel,
