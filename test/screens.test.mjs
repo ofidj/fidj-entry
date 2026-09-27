@@ -174,7 +174,10 @@ test("the member card: agreement, switches, history, export and the way out", as
     accepted,
     /class="basis"[^>]*href="https:\/\/api\.example\/v3\/apps\/a\/agreements\/v2"/,
   );
-  assert.match(accepted, /Contract · agreement v2/);
+  // The same words as Fidj's own GDPR card: the link reads the contract, the
+  // version is on the card's figures.
+  assert.match(accepted, /Contract · read it ↗/);
+  assert.doesNotMatch(accepted, /Contract · agreement/);
   assert.match(
     accepted,
     /role="switch"[^>]*data-purpose="analytics"[^>]*checked/,

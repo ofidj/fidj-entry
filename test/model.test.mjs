@@ -211,6 +211,24 @@ test("acceptance asks the same question of a form and of a state object", () => 
   );
 });
 
+// An app's own form needs no preamble: "Mat Cloud accounts are Fidj accounts.
+// Sign in below…" said what the form already shows, and on a Fidj that did not
+// recognise its own address it introduced Fidj to itself.
+test("an inline app's form carries no lead", () => {
+  const model = providerEntryModel({ title: "Mat Cloud", shape: "inline" });
+  assert.equal(model.lead, "");
+  const html = providerEntry(
+    "Mat Cloud",
+    "app-with-no-storage",
+    '<input id="password">',
+    false,
+    "inline",
+  );
+  assert.doesNotMatch(html, /signin-lead/);
+  assert.doesNotMatch(html, /accounts are Fidj accounts/);
+  assert.match(html, /id="password"/);
+});
+
 // The shape logic is where the branching lives, so it is where a second
 // implementation would go wrong. A model that decides it once is the fix.
 test("the entry's shape decides which doors exist, without rendering one", () => {

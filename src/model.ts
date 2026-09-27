@@ -183,14 +183,14 @@ export function providerEntryModel(options: {
   const both = shape === "both" && hasCredentials;
 
   // The app's own form and nothing else. Nothing is folded away because there
-  // is no second way in to fold it under, and the trade-off is stated plainly:
-  // on this path it is this site that holds the password.
+  // is no second way in to fold it under, and an app's form needs no preamble
+  // saying so: only Fidj itself says what its one account is for.
   if (shape === "inline") {
     return {
       shape,
       lead: isFidjItself
         ? "One account across every app that uses Fidj, and a separate set of choices for each one."
-        : `${title} accounts are Fidj accounts. Sign in below — ${title} handles your password itself on this page.`,
+        : "",
       door: null,
       forget: null,
       disclosure: null,

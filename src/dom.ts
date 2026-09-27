@@ -188,7 +188,9 @@ export function providerEntry(
     shape,
     hasCredentials: Boolean(credentials),
   });
-  const lead = `<p class="signin-lead">${escape(model.lead)}</p>`;
+  const lead = model.lead
+    ? `<p class="signin-lead">${escape(model.lead)}</p>`
+    : "";
   if (!model.door) return lead + credentials;
   const door = button(model.door, "fidj-entry");
   const forget = model.forget
@@ -477,7 +479,7 @@ export function memberCard(options: {
   const agreementRow = consent.terms
     ? `<div class="member-row"><div><strong>Service agreement</strong>${
         options.agreementHref && version
-          ? `<a class="basis" href="${escape(options.agreementHref)}" target="_blank" rel="noopener noreferrer">Contract · agreement ${escape(version)} ↗</a>`
+          ? `<a class="basis" href="${escape(options.agreementHref)}" target="_blank" rel="noopener noreferrer">Contract · read it ↗</a>`
           : '<span class="basis">Contract</span>'
       }</div><small class="nosw">Part of the service. To stop it, leave the app.</small></div>`
     : '<div class="member-row"><div><strong>Service agreement</strong><small>Not accepted yet — accept it or leave the app.</small></div><button id="accept-terms" class="primary">Accept</button></div>';

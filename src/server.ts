@@ -10,6 +10,9 @@ import { escape } from "./dom.js";
 export type OidcInteractionPage = {
   mode: "login" | "waiting" | "consent";
   appTitle: string;
+  // Fidj's own app is the client: the screen signs in to Fidj, not "to Fidj's
+  // account to continue to Fidj".
+  isFidjItself?: boolean;
   action: string;
   csrf: string;
   notice?: string;
@@ -167,7 +170,9 @@ function interactionCopy(page: OidcInteractionPage) {
     heading: waiting
       ? "Check your email"
       : login
-        ? `Sign in to your Fidj account to continue to ${escape(page.appTitle)}.`
+        ? page.isFidjItself
+          ? "Sign in to Fidj."
+          : `Sign in to your Fidj account to continue to ${escape(page.appTitle)}.`
         : `Continue to ${escape(page.appTitle)}`,
     lead: waiting
       ? `Your account is created. Waiting for you to open the link sent to <strong>${escape(page.waitingEmail)}</strong>.`

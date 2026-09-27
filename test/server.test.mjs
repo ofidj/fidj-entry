@@ -31,6 +31,20 @@ test("the server renderer owns the complete OIDC credential screen", () => {
   assert.doesNotMatch(html, /<Notes>/);
 });
 
+// Signing in to Fidj itself is not "continuing to" an app called Fidj: the
+// sentence introduced Fidj to itself.
+test("the credential screen names Fidj plainly when Fidj is the client", () => {
+  const html = serverEntry.oidcInteractionPage({
+    mode: "login",
+    appTitle: "fidj",
+    isFidjItself: true,
+    action: "/oidc/interaction/abc",
+    csrf: "csrf-token",
+  });
+  assert.match(html, /<h1>Sign in to Fidj\.<\/h1>/);
+  assert.doesNotMatch(html, /continue to fidj/i);
+});
+
 test("the server renderer owns the OIDC wait and consent screens", () => {
   const waiting = serverEntry.oidcInteractionPage({
     mode: "waiting",

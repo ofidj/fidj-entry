@@ -77,7 +77,12 @@ small {
   margin: 0;
 }
 
+/* The bar stays on screen while the page scrolls, and the tabs under it pin
+ * themselves just below its 60px. */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
   background: var(--fidj-ink);
   color: var(--fidj-on-ink);
   padding: 0 clamp(20px, 4vw, 56px);
@@ -290,6 +295,12 @@ nav {
   gap: 2px;
   border-bottom: 1px solid var(--fidj-line-soft);
   margin: 10px 0 32px;
+}
+main > nav {
+  position: sticky;
+  top: 60px;
+  z-index: 14;
+  background: var(--fidj-paper);
 }
 nav button {
   border: 0;
@@ -822,8 +833,13 @@ body.has-module {
 .profile-public img {
   display: block;
 }
+/* Sign out wears the same button as on Fidj's own profile: red, outlined,
+ * compact. */
 .profile-summary .danger {
   flex: 0 0 auto;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--fidj-danger);
   border-color: var(--fidj-danger);
 }
