@@ -749,6 +749,20 @@ body.has-module {
   text-align: center;
   margin: 0;
 }
+/* The unseen twin of Continue that takes Enter ahead of the passkey door:
+ * out of sight and out of the tab order, still a real submit button (a
+ * display:none one is skipped by some browsers' implicit submission). */
+.implicit-submit {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
+}
 .signin-badges {
   margin-top: auto;
   padding-top: 24px;

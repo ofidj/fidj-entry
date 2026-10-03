@@ -92,8 +92,12 @@ export function credentialFields(
   options: { passkey?: boolean } = {},
 ) {
   const model = credentialsModel(state);
+  // Enter in a field submits with the form's first submit button. Drawn
+  // first, the passkey door would take it: this unseen twin of Continue comes
+  // before it, so Enter signs in with what was typed (UI review, 3 Oct).
   const passkey = options.passkey
-    ? `<button class="primary passkey" type="submit" id="${escape(passkeyDoorModel.id)}" name="${escape(passkeyDoorModel.name)}" value="${escape(passkeyDoorModel.value)}" formnovalidate>${escape(passkeyDoorModel.label)}</button>` +
+    ? `<button class="implicit-submit" type="submit" name="entry" value="credentials" tabindex="-1" aria-hidden="true">${escape(model.submit.label)}</button>` +
+      `<button class="primary passkey" type="submit" id="${escape(passkeyDoorModel.id)}" name="${escape(passkeyDoorModel.name)}" value="${escape(passkeyDoorModel.value)}" formnovalidate>${escape(passkeyDoorModel.label)}</button>` +
       `<p class="entry-divider"><span>${escape(emailDividerLabel)}</span></p>`
     : "";
   return (
