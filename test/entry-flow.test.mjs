@@ -185,7 +185,11 @@ test("a check that throws is not an answer, and does not end the wait", async ()
     },
     onVerified: () => assert.fail("a failed check must not count as verified"),
   });
-  await new Promise((r) => setTimeout(r, 30));
+  // Waits for the second try rather than a fixed 30ms: on a slow CI runner
+  // 30ms held a single tick, and the test failed on time, not on behaviour.
+  const deadline = Date.now() + 2000;
+  while (asked < 2 && Date.now() < deadline)
+    await new Promise((r) => setTimeout(r, 5));
   stop();
   assert.ok(asked > 1, "it kept trying");
 });
