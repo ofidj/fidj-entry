@@ -238,7 +238,7 @@ export function providerEntryModel(options: {
   const lead = hint
     ? `You signed in here with Fidj before. ${title} accounts are Fidj accounts — continue as yourself, or use another.`
     : both
-      ? `${title} accounts are Fidj accounts. Fidj asks in a window of its own, so this site never sees your password.`
+      ? `${title} accounts are Fidj accounts. The Fidj button opens its own window; the email form below signs in on this site.`
       : isFidjItself
         ? "One account across every app that uses Fidj, and a separate set of choices for each one. Fidj asks in a window of its own; this page stays where it is."
         : `${title} accounts are Fidj accounts. You will sign in — or create yours — in a Fidj window, so this site never sees your password.`;
@@ -704,6 +704,6 @@ export function historyLine(entry: HistoryEntry): {
     entry.type.charAt(0).toUpperCase() + entry.type.slice(1);
   return {
     when,
-    what: `${title} — ${entry.granted ? "turned on" : "turned off"}`,
+    what: `${title} · ${entry.granted ? "turned on" : "turned off"}`,
   };
 }

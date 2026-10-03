@@ -12,15 +12,15 @@ const at = "2026-09-24T12:05:00Z";
 test("a choice reads with the title the switch carries", () => {
   assert.deepEqual(
     historyLine({ type: "communications", granted: true, changedAt: at }),
-    { when: formatDate(at, "datetime"), what: "Communications — turned on" },
+    { when: formatDate(at, "datetime"), what: "Communications · turned on" },
   );
   assert.equal(
     historyLine({ type: "analytics", granted: false, changedAt: at }).what,
-    "Analytics — turned off",
+    "Analytics · turned off",
   );
   assert.equal(
     historyLine({ type: "optionalData", granted: true, changedAt: at }).what,
-    "Optional data — turned on",
+    "Optional data · turned on",
   );
 });
 
@@ -62,7 +62,7 @@ test("the source is an internal id and is never shown", () => {
 test("an unknown type is capitalised rather than dropped", () => {
   assert.equal(
     historyLine({ type: "newsletter", granted: true, changedAt: at }).what,
-    "Newsletter — turned on",
+    "Newsletter · turned on",
   );
 });
 

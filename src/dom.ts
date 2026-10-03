@@ -490,7 +490,7 @@ export function memberCard(options: {
   const choices = optionalPurposes
     .map(
       (purpose) =>
-        `<label class="member-row" for="purpose-${purpose.key}"><div><strong>${escape(purpose.title)}</strong><small>${escape(purpose.description)}</small><span class="basis consent">Consent</span></div><span class="switch"><input type="checkbox" role="switch" id="purpose-${purpose.key}" data-purpose="${purpose.key}"${consent[purpose.key] ? " checked" : ""}><span class="switch-state" aria-hidden="true">${consent[purpose.key] ? "On" : "Off"}</span></span></label>`,
+        `<div class="member-row"><div><strong id="purpose-${purpose.key}-label">${escape(purpose.title)}</strong><small id="purpose-${purpose.key}-description">${escape(purpose.description)}</small></div><span class="switch"><input type="checkbox" role="switch" id="purpose-${purpose.key}" data-purpose="${purpose.key}" aria-labelledby="purpose-${purpose.key}-label" aria-describedby="purpose-${purpose.key}-description"${consent[purpose.key] ? " checked" : ""}><span class="switch-state" aria-hidden="true">${consent[purpose.key] ? "On" : "Off"}</span></span></div>`,
     )
     .join("");
   const entries = history.length

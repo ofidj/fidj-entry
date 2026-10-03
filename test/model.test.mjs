@@ -315,4 +315,6 @@ test("the folded form is offered as signing in with an email", async () => {
     hasCredentials: true,
   });
   assert.equal(model.disclosure.label, "Or with your email");
+  assert.match(model.lead, /email form below signs in on this site/);
+  assert.doesNotMatch(model.lead, /never sees your password/);
 });

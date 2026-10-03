@@ -1381,7 +1381,7 @@ button.quiet {
 .basis {
   align-self: flex-start;
   font-family: var(--fidj-font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 2px 7px;
@@ -1437,6 +1437,29 @@ input[role="switch"]:checked::after {
 input[role="switch"]:focus-visible {
   outline: 2px solid var(--fidj-ink);
   outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  input[role="switch"] {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+  }
+  input[role="switch"]::after {
+    top: 11px;
+    left: 5px;
+    width: 22px;
+    height: 22px;
+  }
+  input[role="switch"]:checked::after {
+    left: 17px;
+  }
+  button,
+  a.button,
+  .workspace-link,
+  .member-actions a,
+  .member-actions button {
+    min-height: 44px;
+  }
 }
 .member-history {
   margin: 0 0 16px;

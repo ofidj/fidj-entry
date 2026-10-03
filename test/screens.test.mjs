@@ -182,6 +182,9 @@ test("the member card: agreement, switches, history, export and the way out", as
     accepted,
     /role="switch"[^>]*data-purpose="analytics"[^>]*checked/,
   );
+  assert.match(accepted, /aria-labelledby="purpose-analytics-label"/);
+  assert.match(accepted, /aria-describedby="purpose-analytics-description"/);
+  assert.doesNotMatch(accepted, />Consent<\/span>/);
   assert.match(accepted, /class="switch-state"[^>]*>On</);
   // History is a toggle like the console's, not a native disclosure triangle,
   // and it reads with the switch's own title.
@@ -192,7 +195,7 @@ test("the member card: agreement, switches, history, export and the way out", as
   );
   assert.match(accepted, /id="member-history" class="member-history" hidden/);
   assert.match(accepted, /24 Sep 2026, \d\d:\d\d/);
-  assert.match(accepted, /Analytics — turned on/);
+  assert.match(accepted, /Analytics · turned on/);
   assert.doesNotMatch(accepted, /analytics given/);
   assert.match(accepted, /id="export">Export</);
   assert.match(accepted, /id="leave" class="danger">Leave &amp; erase</);
