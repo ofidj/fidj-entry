@@ -833,15 +833,13 @@ body.has-module {
 .profile-public img {
   display: block;
 }
-/* Sign out wears the same button as on Fidj's own profile: red, outlined,
- * compact. */
-.profile-summary .danger {
+/* Sign out wears the same button as on Fidj's own profile: plain, outlined,
+ * compact. It ends a session and erases nothing, so it is not red (v3). */
+.profile-summary .sign-out {
   flex: 0 0 auto;
   padding: 6px 12px;
   font-size: 13px;
   line-height: 1.5;
-  color: var(--fidj-danger);
-  border-color: var(--fidj-danger);
 }
 .profile-body {
   margin: 0;

@@ -58,4 +58,6 @@
    * a full round only for avatars and status dots. */
   --fidj-radius: 2px;
   --fidj-shell-max: 1180px;
+  /* Between two cards of a list you open one by one (apps, memberships). */
+  --fidj-card-gap: 16px;
 }
