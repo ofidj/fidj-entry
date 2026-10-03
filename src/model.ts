@@ -49,16 +49,54 @@ export function agreementRequired(error: unknown): boolean {
 // would have the person accept text the API is about to call stale. Both halves
 // are required — a version with no text is nothing to read, and text with no
 // version is nothing to record.
-export function agreementFromRefusal(
-  error: unknown,
-): { version: string; text: string } | null {
+export type ServiceAgreement = {
+  version: string;
+  text: string;
+  language?: string;
+  href?: string;
+};
+
+export function agreementFromRefusal(error: unknown): ServiceAgreement | null {
   if (!agreementRequired(error)) return null;
   const details = (error as { details?: unknown }).details as
-    { agreement?: { version?: unknown; text?: unknown } } | undefined;
+    | {
+        agreement?: {
+          version?: unknown;
+          text?: unknown;
+          language?: unknown;
+          href?: unknown;
+        };
+      }
+    | undefined;
   const agreement = details?.agreement;
   if (typeof agreement?.version !== "string" || !agreement.version) return null;
   if (typeof agreement?.text !== "string" || !agreement.text) return null;
-  return { version: agreement.version, text: agreement.text };
+  return {
+    version: agreement.version,
+    text: agreement.text,
+    // The language shown and the address of that text travel with it, so the
+    // link on the screen opens what the person is about to accept.
+    ...(typeof agreement.language === "string"
+      ? { language: agreement.language }
+      : {}),
+    ...(typeof agreement.href === "string" ? { href: agreement.href } : {}),
+  };
+}
+
+// Where an agreement is read. The API hands the address with the agreement,
+// naming the language it showed; an older API sends none, and the address is
+// then built the way every surface used to build it.
+export function agreementAddress(
+  apiEndpoint: string,
+  appId: string,
+  agreement: { version: string; href?: string },
+): string {
+  const root = apiEndpoint.replace(/\/+$/, "");
+  return (
+    root +
+    (agreement.href ||
+      `/apps/${encodeURIComponent(appId)}/agreements/${encodeURIComponent(agreement.version)}`)
+  );
 }
 
 // What the SDK says when POST /v3/users answered 201: the account was created
