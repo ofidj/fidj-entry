@@ -3,6 +3,10 @@
 Earlier versions are described in their commit messages and in the generator's
 CHANGELOG, which records each entry release it installs.
 
+## [3.23.0] - 2026-10-04
+
+- No change of its own: the 3.23 series.
+
 ## [3.22.0] - 2026-10-04
 
 - The 3.22 series.
