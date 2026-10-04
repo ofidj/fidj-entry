@@ -707,3 +707,24 @@ export function historyLine(entry: HistoryEntry): {
     what: `${title} · ${entry.granted ? "turned on" : "turned off"}`,
   };
 }
+
+// What a Fidj client receives, one sentence per permission, drawn by every
+// consent screen. Deleting the shared account is asked by name: an app gets it
+// only when the operator allowed that app to ask, and uses it only when the
+// person asks the app to.
+export const permissionMeanings: Readonly<Record<string, string>> = {
+  openid: "An identity specific to this app",
+  profile: "Your display name",
+  email: "Your email and verification status",
+  offline_access: "Stay signed in",
+  "fidj:api": "Use Fidj account and privacy services for this app",
+  "fidj:account.delete":
+    "Delete your Fidj account and its data when you ask this app to",
+};
+
+export function permissionLines(scope: string | string[]): string[] {
+  const scopes = Array.isArray(scope) ? scope : String(scope || "").split(" ");
+  return scopes
+    .filter((name) => permissionMeanings[name])
+    .map((name) => permissionMeanings[name]);
+}

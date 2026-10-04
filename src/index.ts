@@ -42,6 +42,8 @@ export {
   type AccountModel,
   type CredentialsModel,
   agreementAddress,
+  permissionMeanings,
+  permissionLines,
   type ServiceAgreement,
 } from "./model.js";
 export { signInHint, rememberSignIn, forgetSignIn } from "./remembered.js";

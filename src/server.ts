@@ -6,6 +6,8 @@ import {
   returnNoticeModel,
 } from "./model.js";
 import { escape } from "./dom.js";
+// The API's own consent page lists permissions in the same words as the front end.
+export { permissionLines } from "./model.js";
 
 export type OidcInteractionPage = {
   mode: "login" | "waiting" | "consent";

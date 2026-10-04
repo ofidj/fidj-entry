@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.25.0] - 2026-10-04
+
+- `permissionMeanings` / `permissionLines`: one sentence per permission a Fidj client can ask for, drawn by the API's consent page and by Fidj's front end; adds the deletion of the account (`fidj:account.delete`).
+
 ## [3.24.0] - 2026-10-04
 
 - Align with the 3.24 series; shared entry behavior remains unchanged.
