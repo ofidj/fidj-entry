@@ -514,7 +514,7 @@ export function memberCard(options: {
   <div id="member-history" class="member-history" hidden>${entries}</div>
   <div class="member-actions"><button type="button" id="history-toggle" aria-expanded="false" aria-controls="member-history">History</button><button id="export">Export</button>${leave}</div>${
     options.manageHref
-      ? `<p class="leaving"><a href="${escape(options.manageHref)}" target="_blank" rel="noopener noreferrer">Open Fidj to manage every app you use ↗</a></p>`
+      ? `<p class="leaving"><a href="${escape(options.manageHref)}" target="_blank" rel="noopener noreferrer">Manage every app on Fidj ↗</a></p>`
       : ""
   }`;
 }

@@ -279,7 +279,7 @@ button:disabled {
 }
 .roles {
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fidj-text-faint);
@@ -385,7 +385,7 @@ nav button:last-child {
 .agreement span {
   float: right;
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fidj-text-faint);
@@ -430,7 +430,7 @@ hr {
 footer {
   text-align: center;
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--fidj-text-faint);
   border-top: 1px solid var(--fidj-line-soft);
@@ -447,7 +447,7 @@ footer {
   background: var(--fidj-paper);
   color: var(--fidj-text-faint);
   font-family: var(--fidj-font-mono);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1;
   opacity: 0.9;
 }
@@ -541,6 +541,9 @@ body.has-module {
   font-size: 17px;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+.signin-mobile-masthead {
+  display: none;
 }
 .signin-identity {
   display: flex;
@@ -724,7 +727,7 @@ body.has-module {
   align-items: center;
   gap: 12px;
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--fidj-text-faint);
@@ -772,7 +775,7 @@ body.has-module {
 }
 .signin-badges span {
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fidj-text-faint);
@@ -781,6 +784,9 @@ body.has-module {
 }
 
 @media (max-width: 860px) {
+  .signin-intro > .signin-masthead {
+    display: none;
+  }
   .signin-intro {
     gap: 32px;
     padding: 36px 24px 32px;
@@ -790,6 +796,13 @@ body.has-module {
   .signin-form {
     order: -1;
     padding: 36px 24px 32px;
+  }
+  .signin-mobile-masthead {
+    display: block;
+    margin-bottom: 28px;
+  }
+  .signin-mobile-masthead .signin-masthead {
+    color: var(--fidj-text);
   }
   .signin-description {
     font-size: 15px;
@@ -888,6 +901,23 @@ body.has-module {
   color: var(--fidj-on-ink-faint);
   border-bottom: 2px solid transparent;
   white-space: nowrap;
+  gap: 7px;
+}
+.topbar .content-nav .profile-mark {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.topbar .content-nav .profile-mark svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
 }
 .topbar .content-nav button:hover:not(:disabled) {
   color: var(--fidj-on-ink);
@@ -1296,7 +1326,7 @@ button.quiet {
   gap: 12px;
   margin: 22px 0;
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--fidj-text-faint);
@@ -1324,7 +1354,7 @@ button.quiet {
 .wallet-door .wallet-date {
   margin-left: auto;
   font-family: var(--fidj-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--fidj-line);
