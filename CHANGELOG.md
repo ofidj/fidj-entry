@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.24.0] - 2026-10-04
+
+- Align with the 3.24 series; shared entry behavior remains unchanged.
+
+
 Earlier versions are described in their commit messages and in the generator's
 CHANGELOG, which records each entry release it installs.
 
