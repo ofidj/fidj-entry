@@ -21,7 +21,9 @@ test("Enter signs in with the password on the DOM entry, passkey drawn first", (
   const first = firstSubmit(html);
   assert.match(first, /value="credentials"/);
   // Still the passkey that a person sees first.
-  assert.ok(html.indexOf("Continue with a passkey") < html.indexOf('id="email"'));
+  assert.ok(
+    html.indexOf("Continue with a passkey") < html.indexOf('id="email"'),
+  );
 });
 
 test("Enter signs in with the password on the Fidj window, passkey drawn first", () => {
