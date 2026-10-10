@@ -247,3 +247,17 @@ test("the password field carries no placeholder of dots", () => {
   assert.doesNotMatch(field, /•/);
   assert.doesNotMatch(field, /placeholder=""/);
 });
+
+// A title that only repeats the lit tab stays for a screen reader, out of
+// sight, on Fidj and in every generated app.
+test("the shared style hides a title that echoes the lit tab", async () => {
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync(
+    new URL("../src/style.css", import.meta.url),
+    "utf8",
+  );
+  const rule = css.match(/\n\.echoes-tab \{([^}]*)\}/);
+  assert.ok(rule);
+  assert.match(rule[1], /position: absolute/);
+  assert.match(rule[1], /clip: rect\(0 0 0 0\)/);
+});

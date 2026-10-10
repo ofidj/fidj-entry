@@ -728,3 +728,111 @@ export function permissionLines(scope: string | string[]): string[] {
     .filter((name) => permissionMeanings[name])
     .map((name) => permissionMeanings[name]);
 }
+
+// The round mark a profile opens on: two initials on a colour of their own.
+// The name speaks first; without one, the address does ("john.doe" → JD). The
+// colour is drawn from the address so it looks random but follows the person
+// from Fidj to every app and across reloads.
+export function profileAvatar(
+  name: string | null | undefined,
+  email: string | null | undefined,
+): { initials: string; hue: number } {
+  const address = String(email || "")
+    .trim()
+    .toLowerCase();
+  const words = (source: string) => source.split(/[\s._+-]+/).filter(Boolean);
+  const named = words(String(name || "").trim());
+  const parts = named.length ? named : words(address.split("@")[0]);
+  const letters = (word: string) => Array.from(word);
+  const initials =
+    parts.length > 1
+      ? letters(parts[0])[0] + letters(parts[parts.length - 1])[0]
+      : letters(parts[0] || "")
+          .slice(0, 2)
+          .join("");
+  let hash = 0;
+  for (const char of address || String(name || "")) {
+    hash = (hash * 31 + char.codePointAt(0)!) >>> 0;
+  }
+  return { initials: initials.toUpperCase() || "?", hue: hash % 360 };
+}
+
+// An app's exit class, as its public page explains it: the scale, where the
+// app sits on it, and the rule that put it there. The API decides the class
+// and names the rule; the sentences live here, beside every other one.
+export type ExitLevel = {
+  level: "candidate" | "A" | "B" | "C" | "D" | "E";
+  basis: string;
+  observedAt?: string;
+  source?: string;
+};
+// Said wherever the class is shown: it is Fidj's finding under its public
+// method, and claiming more would be a misleading claim of certification.
+export const exitClassNotice =
+  "A Fidj exit class, set under Fidj's public method from dated and sourced findings. It is not a certification under GDPR Articles 42 and 43, nor an opinion on the service's compliance.";
+const EXIT_LEVEL_NAMES: Record<ExitLevel["level"], string> = {
+  A: "Deletion by API",
+  B: "Revocation by API",
+  C: "Documented web procedure",
+  D: "Contact only",
+  E: "No channel found",
+  candidate: "API not usable yet",
+};
+// What each class means, whatever the app: the scale a reader can open step
+// by step, beside the reason this one app has its class.
+const EXIT_LEVEL_MEANINGS: Record<"A" | "B" | "C" | "D" | "E", string> = {
+  A: "Fidj deletes your account at the service through its API when you ask. You have nothing to do there yourself.",
+  B: "Fidj withdraws your access and your consents through the API, or exports your data. Erasing what the service keeps itself is left to the service.",
+  C: "The service documents how to delete your account on its website. Fidj guides you through each step and keeps the evidence.",
+  D: "The service documents no deletion procedure: you write to it, and Fidj keeps track of your request.",
+  E: "No deletion procedure, address or form was found where Fidj looked. The finding is dated, and revised as soon as a way to reach the service is reported.",
+};
+const EXIT_LEVEL_REASONS: Record<string, string> = {
+  fidj: "Fidj deletes your account through its own API when you ask, and can let an app you allow ask for you.",
+  handler:
+    "This app registered a handler: when you leave, Fidj exports and erases your data in the app's own storage through it.",
+  membership:
+    "Fidj ends your membership and withdraws your consents through its API. The app registered no handler, so the data it keeps itself is erased by the app, not through Fidj.",
+  "api-delete":
+    "The service deletes accounts through its API, and Fidj calls it with your authorization.",
+  "api-candidate":
+    "The service documents an API that Fidj cannot call yet: you follow its own procedure.",
+  "account-deletion":
+    "The service documents a deletion procedure on its website, and Fidj guides you through it.",
+  "no-channel":
+    "No deletion procedure, address or form was found for this service. Fidj says where it looked and when, and revises the finding when a way to reach it is reported.",
+  contact:
+    "The service documents no deletion procedure: you write to it, and Fidj keeps track of the request.",
+};
+export function exitLevelModel(exit: ExitLevel | null | undefined) {
+  if (!exit) return null;
+  return {
+    level: exit.level,
+    name: EXIT_LEVEL_NAMES[exit.level],
+    reason: EXIT_LEVEL_REASONS[exit.basis] || "",
+    // A service card's class rests on a finding: its date, and where it was
+    // made. An app built on Fidj is read live and has none.
+    finding: exit.observedAt
+      ? { date: formatDate(exit.observedAt), source: exit.source || "" }
+      : null,
+    scale: (["A", "B", "C", "D", "E"] as const).map((level) => ({
+      level,
+      name: EXIT_LEVEL_NAMES[level],
+      meaning: EXIT_LEVEL_MEANINGS[level],
+      current: level === exit.level,
+    })),
+  };
+}
+
+// How a service answered the requests sent to it through Fidj: counted, beside
+// its class and never inside it. The API says nothing below five settled
+// requests, and neither does this.
+export function exitConductLine(
+  conduct:
+    | { settled: number; answered: number; refused: number; unanswered: number }
+    | null
+    | undefined,
+) {
+  if (!conduct) return "";
+  return `Of ${conduct.settled} settled requests sent through Fidj: ${conduct.answered} answered, ${conduct.refused} refused, ${conduct.unanswered} unanswered past the deadline.`;
+}

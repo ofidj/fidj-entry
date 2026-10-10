@@ -47,6 +47,15 @@
   --fidj-warn: #c07a1e;
   --fidj-warn-tint: #fbf7f1;
 
+  /* Exit classes, green to red: how a person can leave an app through Fidj.
+   * fidj-api paints its public badge with the same values. */
+  --fidj-exit-a: #2e7d32;
+  --fidj-exit-b: #7a8a1f;
+  --fidj-exit-c: #c2570c;
+  --fidj-exit-d: #d6342c;
+  --fidj-exit-e: #7a1f1a;
+  --fidj-exit-candidate: #6b6560;
+
   --fidj-focus-ring: 0 0 0 3px rgb(20 17 15 / 0.07);
   --fidj-overlay-shadow: 0 12px 32px rgb(20 17 15 / 0.18);
 

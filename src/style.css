@@ -755,6 +755,19 @@ body.has-module {
 /* The unseen twin of Continue that takes Enter ahead of the passkey door:
  * out of sight and out of the tab order, still a real submit button (a
  * display:none one is skipped by some browsers' implicit submission). */
+/* A title that only repeats the lit tab: out of sight, still read by a
+ * screen reader, so the page keeps its h1 without a band of padding. */
+.echoes-tab {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
+}
 .implicit-submit {
   position: absolute;
   width: 1px;
@@ -828,7 +841,7 @@ body.has-module {
 }
 .profile-summary {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   margin-bottom: 12px;
   padding: 14px 16px;
@@ -848,9 +861,14 @@ body.has-module {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.profile-summary-copy > span:last-child {
-  color: var(--fidj-text-faint);
-  font-size: 13px;
+/* The address and the app's own badge share a line, and wrap under each other
+ * on a phone. */
+.profile-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
 }
 .profile-public {
   display: flex;
@@ -860,13 +878,18 @@ body.has-module {
 .profile-public img {
   display: block;
 }
-/* Sign out wears the same button as on Fidj's own profile: plain, outlined,
- * compact. It ends a session and erases nothing, so it is not red (v3). */
+/* Sign out wears the same button as on Fidj's own profile: compact, at the
+ * card's top right, red and outlined — not solid like the deletion further
+ * down, which ends far more than this session. */
 .profile-summary .sign-out {
   flex: 0 0 auto;
+  margin: 0;
   padding: 6px 12px;
   font-size: 13px;
   line-height: 1.5;
+  color: var(--fidj-danger);
+  border-color: var(--fidj-danger);
+  background: transparent;
 }
 .profile-body {
   margin: 0;
@@ -903,21 +926,21 @@ body.has-module {
   white-space: nowrap;
   gap: 7px;
 }
+/* The person, after the word: their initials on a disc whose hue
+ * profileAvatar() draws from their address, dark enough for white letters. */
 .topbar .content-nav .profile-mark {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 20px;
-  border: 1px solid currentColor;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-}
-.topbar .content-nav .profile-mark svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
+  background: hsl(var(--avatar-hue, 220) 50% 35%);
+  color: var(--fidj-on-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 .topbar .content-nav button:hover:not(:disabled) {
   color: var(--fidj-on-ink);

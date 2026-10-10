@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.27.0] - 2026-10-10
+
+- `profileAvatar(name, email)`: two initials on a hue drawn from the address, the same mark on Fidj and in every app.
+- `exitLevelModel`, `exitConductLine` and `exitClassNotice`: the sentences that explain an app's exit class, its rule and the service's conduct, never as a GDPR certification.
+- The profile head is compact: the address beside the app's badge, Sign out at the top right, and the Profile title kept for screen readers only.
+
 ## [3.26.0] - 2026-10-05
 
 - The 3.26 series; no change to entry behaviour.
